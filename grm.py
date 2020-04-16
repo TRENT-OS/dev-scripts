@@ -10,6 +10,38 @@
 import os, sys, platform
 import git
 
+#-------------------------------------------------------------------------------
+def branch_info_str(branch):
+    return "[{}]@{}".format(branch.name, branch.commit.hexsha[:8])
+
+
+#-------------------------------------------------------------------------------
+def add_branch_to_dict(d, branch):
+    commit = branch.commit
+    if commit in d:
+        d[commit].append(branch)
+    else:
+        d[commit] = [branch]
+
+#-------------------------------------------------------------------------------
+def group_branches_by_commit(branch_list):
+    d = {}
+    for branch in branch_list:
+        add_branch_to_dict(d, branch)
+
+    return d
+
+
+#-------------------------------------------------------------------------------
+def branches_info_str(branch_list):
+    s = ""
+    d = group_branches_by_commit(branch_list)
+    for commit, branches in d.items():
+        s +=  "[{}]@{}".format(
+                    ", ".join(branch.name for branch in branches),
+                    commit.hexsha[:8])
+    return s
+
 
 #-------------------------------------------------------------------------------
 def get_repo_info(repo):
@@ -31,14 +63,20 @@ def get_repo_info(repo):
 
 
 #-------------------------------------------------------------------------------
+def get_filtered_branch_list(branch_list, filter_list):
+    return list( filter(
+                    lambda branch: branch.name in filter_list,
+                    branch_list) )
+
+#-------------------------------------------------------------------------------
 def get_branches(repo):
 
     head_commit = repo.head.commit
 
     is_same = list()
-    is_ancestor = list()
-    is_child = list()
-    is_unrelated = list()
+    is_ancestor = dict()
+    is_child = dict()
+    is_unrelated = dict()
 
     for branches in (repo.heads, repo.remote().refs):
         for branch in branches:
@@ -50,13 +88,13 @@ def get_branches(repo):
                 is_same.append(branch)
 
             elif repo.is_ancestor(branch_commmit, head_commit):
-                is_ancestor.append(branch)
+                add_branch_to_dict(is_ancestor, branch)
 
             elif repo.is_ancestor(head_commit, branch_commmit):
-                is_child.append(branch)
+                add_branch_to_dict(is_child, branch)
 
             else:
-                is_unrelated.append(branch)
+                add_branch_to_dict(is_unrelated, branch)
 
     return (is_same, is_ancestor, is_child, is_unrelated)
 
@@ -189,7 +227,8 @@ def print_repo_info(repo, name="", level=0):
     head_branch = repo.head
     head_commit = head_branch.commit
 
-    (is_same, is_ancestor, is_child, is_unrelated) = get_branches(repo)
+    str_name = "(root)" if not name \
+               else "{}+-{}".format(str_indent_template * (level-1), name)
 
     ref_branches = (
         "integration",
@@ -198,35 +237,36 @@ def print_repo_info(repo, name="", level=0):
         "origin/master"
     )
 
-    found = None
-    for branch in is_same:
-        if branch.name in ref_branches:
-            found = branch.name
-            #print(str_indent2 + "[" + branch.name + "]")
-            break
-
-    str_name = "{}+-{}".format(str_indent_template * (level-1), name) if name else "(root)"
-    if found:
-        print(str_name + " [" + branch.name + "]")
+    (is_same, is_ancestor, is_child, is_unrelated) = get_branches(repo)
+    same_branches = get_filtered_branch_list(is_same, ref_branches)
+    if same_branches:
+        print("{} {}".format(
+                str_name,
+                branches_info_str(same_branches)))
     else:
         print(str_name)
         print(str_indent2 + get_repo_info(repo) )
 
-        def print_delta(cnt, mode_str, branch):
-                print(str_indent2 + " "*9 + \
-                    str(cnt) + " commit" + ("s" if cnt > 1 else "") +
-                    " " + mode_str +" [" + branch.name + "]"
-                    "@" + branch.commit.hexsha[:8])
+        def print_delta(cnt, mode_str, branch_list):
+                print("{}{}{} commit{} {} {}".format(
+                        str_indent2,
+                        " "*9,
+                        cnt,
+                        "s" if (cnt > 1) else "",
+                        mode_str,
+                        branches_info_str(branch_list)))
 
-        for branch in is_ancestor:
-            if branch.name in ref_branches:
-                cnt = get_ancestor_delta(head_commit, branch.commit)
-                print_delta(cnt, "ahead of", branch)
+        for commit, branches in is_ancestor.items():
+            branch_list = get_filtered_branch_list(branches, ref_branches)
+            if branch_list:
+                cnt = get_ancestor_delta(head_commit, commit)
+                print_delta(cnt, "ahead of", branch_list)
 
-        for branch in is_child:
-            if branch.name in ref_branches:
-                cnt = get_ancestor_delta(branch.commit, head_commit)
-                print_delta(cnt, "behind", branch)
+        for commit, branches in is_child.items():
+            branch_list = get_filtered_branch_list(branches, ref_branches)
+            if branch_list:
+                cnt = get_ancestor_delta(commit, head_commit)
+                print_delta(cnt, "behind", branch_list)
 
     #if is_ancestor:
     #    print(str_indent2 + "ancestors:")
