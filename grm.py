@@ -42,6 +42,7 @@ def get_branches(repo):
 
     for branches in (repo.heads, repo.remote().refs):
         for branch in branches:
+            #print(branch.name)
 
             branch_commmit = branch.commit
 
@@ -61,18 +62,118 @@ def get_branches(repo):
 
 
 #-------------------------------------------------------------------------------
-def get_ancestor_delta(commit, branch_head):
+def get_ancestor_delta(
+    commit,
+    branch_head_commit,
+    distance = 0,
+    dead_ends = None,
+    seen_commits = None,
+    my_path = None ):
 
-    branch_head_commmit = branch_head.commit
-    cnt = 0
-    while (commit != branch_head_commmit):
-        # check if we have reached the initial commit, which has no parent
-        if not commit.parents: return -1 # no common ancestor
-        # we don't support multiple parents, e.g. from merges
-        commit = commit.parents[0]
-        cnt += 1
+    if dead_ends is None:
+        dead_ends = []
+    elif commit in dead_ends:
+        return -1
 
-    return cnt
+    if seen_commits is None:
+        seen_commits = {}
+
+    while (True):
+
+        # we are done if we've found the commit
+        if (commit == branch_head_commit):
+            return distance;
+
+        # check the parent commits
+        parents = commit.parents
+
+        # check if we have reached a root commit, which has no parent and thus
+        # there is no common ancestor
+        if (not parents):
+            # if there is a dead end list, then update it
+            for c in my_path:
+                if not c in dead_ends:
+                    dead_ends.append(c)
+            return -1
+
+        if my_path: my_path.append(commit)
+        distance += 1
+
+        if commit in seen_commits:
+            (dist, parent, depth) = seen_commits[commit]
+
+            if (depth < 0):
+                # we did not analyze this path in detail. But if we've been
+                # here before at a shorter distance, so there is no point in
+                # analyzing it further here. Result will only be worse
+                if (distance >= dist):
+                    return -5 if (dist == distance) else -4
+            else:
+                # we did analyze this path in detail
+                if (distance >= dist):
+                    return -3 if (dist == distance) else -2
+
+        if (len(parents) > 1):
+            break; # leave the loop
+
+        # if there is just one parent, then we simply follow the chain
+        parent = parents[0]
+        seen_commits[commit] = (distance, parent, -1)
+        commit = parent
+        # and continue the loop
+
+    # we've left the loop here becuase we have found a merge-commit. They have
+    # multiple parents, even more than just 2 are perfectly legal. We have to
+    # check all paths then. There is a (design) guarantee that there are no
+    # circles in the commit history. But a diamond is possible, in this case we
+    # consider the shortest path.
+
+    depth = -1;
+    best_sub_path = None
+    best = None
+    for parent in parents:
+
+        tmp_sub_path = []
+        depth_tmp = get_ancestor_delta(
+                        parent,
+                        branch_head_commit,
+                        distance,
+                        dead_ends,
+                        seen_commits,
+                        tmp_sub_path)
+
+        if (depth_tmp < 0):
+            if (depth_tmp != -1):
+                #    print("drop sub optimal path, {}, path {}".format(depth_tmp, len(tmp_sub_path)))
+                pass
+            else:
+                dead_ends.append(parent)
+                for c in tmp_sub_path:
+                    if not c in dead_ends:
+                        dead_ends.append(c)
+        elif (depth < 0) or (depth > depth_tmp):
+            depth = depth_tmp
+            best_sub_path = tmp_sub_path
+            best = parent
+
+    if (depth < 0):
+        if (depth != -1):
+            # this can't hapopen
+            raise Exception("drop optimal path")
+        dead_ends.append(commit)
+        return -1
+
+    if my_path: my_path.extend(best_sub_path)
+
+    if commit in seen_commits:
+        (dist, parent, d) = seen_commits[commit]
+        if (dist < distance):
+            # this can't happen
+            raise Exception("{} <= {},  {} vs {} ".format(dist, distance, d, depth))
+
+    seen_commits[commit] = (distance, best, depth)
+
+    return depth
 
 
 #-------------------------------------------------------------------------------
@@ -114,16 +215,17 @@ def print_repo_info(repo, name="", level=0):
         def print_delta(cnt, mode_str, branch):
                 print(str_indent2 + " "*9 + \
                     str(cnt) + " commit" + ("s" if cnt > 1 else "") +
-                    " " + mode_str +" [" + branch.name + "]")
+                    " " + mode_str +" [" + branch.name + "]"
+                    "@" + branch.commit.hexsha[:8])
 
         for branch in is_ancestor:
             if branch.name in ref_branches:
-                cnt = get_ancestor_delta(head_commit, branch)
+                cnt = get_ancestor_delta(head_commit, branch.commit)
                 print_delta(cnt, "ahead of", branch)
 
         for branch in is_child:
             if branch.name in ref_branches:
-                cnt = get_ancestor_delta(branch.commit, head_branch)
+                cnt = get_ancestor_delta(branch.commit, head_commit)
                 print_delta(cnt, "behind", branch)
 
     #if is_ancestor:
