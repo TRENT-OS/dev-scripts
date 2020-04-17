@@ -172,7 +172,7 @@ def get_ancestor_delta(
         commit = parent
         # and continue the loop
 
-    # we've left the loop here becuase we have found a merge-commit. They have
+    # we've left the loop here because we have found a merge-commit. They have
     # multiple parents, even more than just 2 are perfectly legal. We have to
     # check all paths then. There is a (design) guarantee that there are no
     # circles in the commit history. But a diamond is possible, in this case we
@@ -208,7 +208,7 @@ def get_ancestor_delta(
 
     if (depth < 0):
         if (depth != -1):
-            # this can't hapopen
+            # this can't happen
             raise Exception("drop optimal path")
         dead_ends.append(commit)
         return -1
