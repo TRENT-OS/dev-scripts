@@ -229,17 +229,14 @@ def get_ancestor_delta(
 def print_repo_info(repo, name="", level=0):
 
     str_indent_template = "| "
-    str_indent  = str_indent_template * level
-    str_indent2 = str_indent + (str_indent_template+"  " if repo.submodules else "   ")
+
+    str_indent = "{}{}".format(
+                    str_indent_template * level,
+                    "   " if not repo.submodules \
+                        else (str_indent_template + "  ") )
 
     #if repo.is_dirty():
     #    print(str_indent + name + " " + get_repo_info(repo) )
-
-    head_branch = repo.head
-    head_commit = head_branch.commit
-
-    str_name = "(root)" if not name \
-               else "{}+-{}".format(str_indent_template * (level-1), name)
 
     ref_branches = (
         "integration",
@@ -248,21 +245,29 @@ def print_repo_info(repo, name="", level=0):
         "origin/master"
     )
 
+    if not name:
+        print("(root)")
+    else:
+        print("{}+-{}".format(str_indent_template * (level-1), name))
+
+    head_branch = repo.head
+    head_commit = head_branch.commit
+
     (is_same, is_ancestor, is_child, is_unrelated) = get_branches(repo)
     same_branches = get_filtered_branch_list(is_same, ref_branches)
     if same_branches:
-        print("{} {}".format(
-                str_name,
-                branches_info_str(same_branches)))
+        print("{}{}".format(
+                str_indent,
+                get_commit_delta_str(0, same_branches)))
     else:
-        print(str_name)
-        print(str_indent2 + get_repo_info(repo) )
+
+        print("{}{}".format(str_indent, get_repo_info(repo)))
 
         for commit, branches in is_ancestor.items():
             branch_list = get_filtered_branch_list(branches, ref_branches)
             if branch_list:
                 print("{}{}{}".format(
-                        str_indent2,
+                        str_indent,
                         " "*9,
                         get_commit_delta_str(
                             get_ancestor_delta(head_commit, commit),
@@ -272,7 +277,7 @@ def print_repo_info(repo, name="", level=0):
             branch_list = get_filtered_branch_list(branches, ref_branches)
             if branch_list:
                 print("{}{}{}".format(
-                        str_indent2,
+                        str_indent,
                         " "*9,
                         get_commit_delta_str(
                             -get_ancestor_delta(commit, head_commit),
@@ -307,6 +312,7 @@ def print_repo_info(repo, name="", level=0):
     #             " \"" + branch_commmit.summary + "\"" )
 
     for sm in repo.submodules:
+        print(str_indent)
         print_repo_info(sm.module(), sm.name, level+1)
 
 
