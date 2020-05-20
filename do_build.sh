@@ -8,25 +8,55 @@ if [ ! -t 1 ] ; then
     #exit $?
 fi
 
-SEOS_TESTS=(
-    #test_demo_fs_as_libs.py
-    test_demo_hello_world.py
-    #test_partition_manager.py # test_network_api.py #test_keystore.py
-    #test_keystore.py
-    #test_chanmux.py
-    #test_cryptoserver.py
-    #test_keystore_preprovisioned.py
-    #test_demo_iot_app.py
-    #test_logserver.py
-    #test_cryptoserver.py
-    #test_network_api.py
-)
+# docker images
+# docker image ls
+# docker container ls
+# docker exec -it --network none -u root [name] bash
+
+#-------------------------------------------------------------------------------
+function docker_data61()
+{
+    # docker pull trustworthysystems/sel4
+    # docker pull trustworthysystems/camkes
+    # docker pull trustworthysystems/sel4-riscv
+    # docker pull trustworthysystems/camkes-riscv
+
+    if [ ! -z "${1:-}" ]; then
+        TARGET=${1}
+        shift
+    else
+        #TARGET=sel4                # build + run
+        #TARGET=sel4-riscv          # build + run
+
+        #TARGET=user_sel4           # run
+        #TARGET=user_sel4-riscv     # run
+
+        #TARGET=camkes              # build + run
+        #TARGET=camkes-riscv        # build + run
+
+        #TARGET=user_camkes         # run
+        TARGET=user_camkes-riscv   # run
+
+        # disable cache and rebuild everything
+        #TARGET=rebuild_all
+        #TARGET=rebuild_sel4
+        #TARGET=rebuild_sel4-riscv
+        #TARGET=rebuild_camkes-riscv
+    fi
+
+    # start the container
+    echo "running:   ${TARGET}"
+    echo ""
+    SEL4_DOCKER_REPO=/home/axel/hensoldt/projekte/seos/_work/sel4-docker
+    make -C ${SEL4_DOCKER_REPO} ${TARGET} HOST_DIR=$(pwd)
+}
+
 
 #-------------------------------------------------------------------------------
 function docker_manual()
 {
     CONTAINER_REPO="docker:5000"
-    CONTAINER_NAME="trentos_test"
+    CONTAINER_NAME="trentos_build"
 
     #CONTAINER_TAG="trentos_0.9"
     CONTAINER_TAG="20200428"
@@ -62,25 +92,12 @@ function docker_sdk()
 {
     SDK=${SCRIPT_DIR}/seos_tests/src/seos_sandbox
 
-    ${SDK}/scripts/open_trentos_test_env.sh $@
+    cd seos_tests
+    ${SDK}/scripts/open_trentos_build_env.sh $@
 }
 
+
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-clear
-cd seos_tests
-
-if [[ ${1:-} == "prepare" ]]; then
-    shift
-    docker_sdk src/test.sh prepare
-    if [ "$#" -eq 0 ]; then
-        exit
-    fi
-fi
-
-if [ "$#" -ne 0 ]; then
-    SEOS_TESTS=$@
-fi
-
-docker_sdk src/test.sh run ${SEOS_TESTS} --capture=no #  -k [1024]
+docker_sdk $@
