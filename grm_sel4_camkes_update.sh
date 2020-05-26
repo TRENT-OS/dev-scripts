@@ -46,7 +46,7 @@ function sel4_camkes_update_cutting_edge()
         update_cutting_edge tools/camkes
         update_cutting_edge tools/seL4
 
-        # update_cutting_edge tools/riscv-pk
+        update_cutting_edge tools/riscv-pk 11.0.x-compatible
     )
 }
 
