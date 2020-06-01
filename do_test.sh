@@ -60,15 +60,14 @@ function docker_manual()
 #-------------------------------------------------------------------------------
 function docker_sdk()
 {
-    SDK=${SCRIPT_DIR}/seos_tests/src/seos_sandbox
-
-    ${SDK}/scripts/open_trentos_test_env.sh $@
+    (
+        cd seos_tests
+        src/seos_sandbox/scripts/open_trentos_test_env.sh $@
+    )
 }
 
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-
-cd seos_tests
 
 if [[ ${1:-} == "prepare" ]]; then
     shift

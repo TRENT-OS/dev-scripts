@@ -90,10 +90,10 @@ function docker_manual()
 #-------------------------------------------------------------------------------
 function docker_sdk()
 {
-    SDK=${SCRIPT_DIR}/seos_tests/src/seos_sandbox
-
-    cd seos_tests
-    ${SDK}/scripts/open_trentos_build_env.sh $@
+    (
+        cd seos_tests
+        src/seos_sandbox/scripts/open_trentos_build_env.sh $@
+    )
 }
 
 
