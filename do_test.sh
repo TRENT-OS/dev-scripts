@@ -1,4 +1,4 @@
-#!/bin/bash -uex
+#!/bin/bash -ue
 
 SCRIPT_DIR=$(cd `dirname $0` && pwd)
 
