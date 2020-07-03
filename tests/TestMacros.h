@@ -52,10 +52,44 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
 // reset the testName to make incorrect use of TEST_START/TEST_FINISH more easy
 // to spot.
 #define TEST_FINISH()                                                          \
-  {                                                                            \
+{                                                                              \
     Debug_LOG_INFO("!!! %s: OK", testName);                                    \
     snprintf(testName, sizeof(testName), "<undefined>");                       \
-  }
+}
+
+#define ASSERT_COMPARE(expected, actual, operator) do                          \
+{                                                                              \
+    if(!(expected operator actual))                                            \
+    {                                                                          \
+        char msg[MAX_MSG_LEN];                                                 \
+        const int ret = snprintf(                                              \
+                            msg,                                               \
+                            sizeof(msg),                                       \
+                            "@%s: Comparison failure: %s " #operator " %s i.e."\
+                            "%d " #operator " %d",                             \
+                                testName,                                      \
+                                #expected,                                     \
+                                #actual,                                       \
+                                expected,                                      \
+                                actual);                                       \
+                                                                               \
+        if(ret>=sizeof(msg))                                                   \
+        {                                                                      \
+            printf("Message was truncated.\n");                                \
+        }                                                                      \
+                                                                               \
+        __assert_fail(msg, __FILE__, __LINE__, __func__);                      \
+    }                                                                          \
+} while(0)
+
+#define ASSERT_EQ(expected, actual) ASSERT_COMPARE(expected, actual, ==)
+#define ASSERT_NE(expected, actual) ASSERT_COMPARE(expected, actual, !=)
+
+#define ASSERT_LT(expected, actual) ASSERT_COMPARE(expected, actual, <)
+#define ASSERT_LE(expected, actual) ASSERT_COMPARE(expected, actual, <=)
+
+#define ASSERT_GT(expected, actual) ASSERT_COMPARE(expected, actual, >)
+#define ASSERT_GE(expected, actual) ASSERT_COMPARE(expected, actual, >=)
 
 /**
  * With the help of these TEST_xxx we obtain practical shorthands for checking
@@ -68,28 +102,19 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
  * function name but the name of the subfunction).
  */
 
-// Assert to check for a specific error code
-#define ASSERT_ERR(x, err)                                                     \
-  {                                                                            \
-    char msg[MAX_MSG_LEN];                                                     \
-    snprintf(msg, sizeof(msg), "@%s: %s == %s", testName, #x, #err);           \
-    ((void)(((x) == err) ||                                                    \
-            (__assert_fail(msg, __FILE__, __LINE__, __func__), 0)));           \
-  }
-
 // These shorthands can be used to simply check function return codes
-#define TEST_INSUFF_SPACE(fn) ASSERT_ERR(fn, SEOS_ERROR_INSUFFICIENT_SPACE)
-#define TEST_TOO_SMALL(fn) ASSERT_ERR(fn, SEOS_ERROR_BUFFER_TOO_SMALL)
-#define TEST_ABORTED(fn) ASSERT_ERR(fn, SEOS_ERROR_ABORTED)
-#define TEST_OP_DENIED(fn) ASSERT_ERR(fn, SEOS_ERROR_OPERATION_DENIED)
-#define TEST_ACC_DENIED(fn) ASSERT_ERR(fn, SEOS_ERROR_ACCESS_DENIED)
-#define TEST_NOT_FOUND(fn) ASSERT_ERR(fn, SEOS_ERROR_NOT_FOUND)
-#define TEST_INVAL_HANDLE(fn) ASSERT_ERR(fn, SEOS_ERROR_INVALID_HANDLE)
-#define TEST_INVAL_NAME(fn) ASSERT_ERR(fn, SEOS_ERROR_INVALID_NAME)
-#define TEST_INVAL_PARAM(fn) ASSERT_ERR(fn, SEOS_ERROR_INVALID_PARAMETER)
-#define TEST_NOT_SUPP(fn) ASSERT_ERR(fn, SEOS_ERROR_NOT_SUPPORTED)
-#define TEST_GENERIC(fn) ASSERT_ERR(fn, SEOS_ERROR_GENERIC)
-#define TEST_SUCCESS(fn) ASSERT_ERR(fn, SEOS_SUCCESS)
+#define TEST_INSUFF_SPACE(fn)   ASSERT_EQ(OS_ERROR_INSUFFICIENT_SPACE,  fn)
+#define TEST_TOO_SMALL(fn)      ASSERT_EQ(OS_ERROR_BUFFER_TOO_SMALL,    fn)
+#define TEST_ABORTED(fn)        ASSERT_EQ(OS_ERROR_ABORTED,             fn)
+#define TEST_OP_DENIED(fn)      ASSERT_EQ(OS_ERROR_OPERATION_DENIED,    fn)
+#define TEST_ACC_DENIED(fn)     ASSERT_EQ(OS_ERROR_ACCESS_DENIED,       fn)
+#define TEST_NOT_FOUND(fn)      ASSERT_EQ(OS_ERROR_NOT_FOUND,           fn)
+#define TEST_INVAL_HANDLE(fn)   ASSERT_EQ(OS_ERROR_INVALID_HANDLE,      fn)
+#define TEST_INVAL_NAME(fn)     ASSERT_EQ(OS_ERROR_INVALID_NAME,        fn)
+#define TEST_INVAL_PARAM(fn)    ASSERT_EQ(OS_ERROR_INVALID_PARAMETER,   fn)
+#define TEST_NOT_SUPP(fn)       ASSERT_EQ(OS_ERROR_NOT_SUPPORTED,       fn)
+#define TEST_GENERIC(fn)        ASSERT_EQ(OS_ERROR_GENERIC,             fn)
+#define TEST_SUCCESS(fn)        ASSERT_EQ(OS_SUCCESS,                   fn)
 
 // Check boolean expression and not an error code
 // Checking return value of snprintf to stop GCC from throwing error about
