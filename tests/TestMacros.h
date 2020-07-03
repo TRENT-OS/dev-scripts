@@ -52,10 +52,10 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
 // reset the testName to make incorrect use of TEST_START/TEST_FINISH more easy
 // to spot.
 #define TEST_FINISH()                                                          \
-{                                                                              \
+  {                                                                            \
     Debug_PRINTFLN("!!! %s: OK", testName);                                    \
     snprintf(testName, sizeof(testName), "<undefined>");                       \
-}
+  }
 
 /**
  * With the help of these TEST_xxx we obtain practical shorthands for checking
@@ -70,12 +70,12 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
 
 // Assert to check for a specific error code
 #define ASSERT_ERR(x, err)                                                     \
-{                                                                              \
+  {                                                                            \
     char msg[MAX_MSG_LEN];                                                     \
     snprintf(msg, sizeof(msg), "@%s: %s == %s", testName, #x, #err);           \
     ((void)(((x) == err) ||                                                    \
             (__assert_fail(msg, __FILE__, __LINE__, __func__), 0)));           \
-}
+  }
 
 // These shorthands can be used to simply check function return codes
 #define TEST_INSUFF_SPACE(fn) ASSERT_ERR(fn, SEOS_ERROR_INSUFFICIENT_SPACE)
@@ -92,9 +92,12 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
 #define TEST_SUCCESS(fn) ASSERT_ERR(fn, SEOS_SUCCESS)
 
 // Check boolean expression and not an error code
+// Checking return value of snprintf to stop GCC from throwing error about
+// format truncation.
 #define TEST_TRUE(st)                                                          \
 {                                                                              \
     char msg[MAX_MSG_LEN];                                                     \
-    snprintf(msg, sizeof(msg), "@%s: %s", testName, #st);                      \
+    int ret = snprintf(msg, sizeof(msg), "@%s: %s", testName, #st);            \
+    if(ret>=sizeof(msg)) { /*Message was truncated */};                        \
     ((void)((st) || (__assert_fail(msg, __FILE__, __LINE__, __func__), 0)));   \
 }
