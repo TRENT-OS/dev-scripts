@@ -9,7 +9,18 @@
 #include <assert.h>
 #include <string.h>
 
-#define MAX_MSG_LEN 256
+/**
+ * @brief   Max test frameworks message length
+ *
+ * This is an arbitrary value chosen so that it is not too big i.e. does not
+ * pollute the test logs and does not have a big impact on the test run time but
+ * on the other hand can store the test name, message itself, the path, and
+ * the line number.
+ *
+ * Feel free to increase it if there is a strong need, but the current value
+ * should be more than enough.
+ */
+#define MAX_MSG_LEN 512
 
 // We use this to keep track of the name of the test that is is currently being
 // executed, see below...
