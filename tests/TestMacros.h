@@ -51,11 +51,11 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
 // This outputs the tests name as a marker that it has been completed. Also, we
 // reset the testName to make incorrect use of TEST_START/TEST_FINISH more easy
 // to spot.
-#define TEST_FINISH()                                                          \
+#define TEST_FINISH() do                                                       \
 {                                                                              \
     Debug_LOG_INFO("!!! %s: OK", testName);                                    \
     snprintf(testName, sizeof(testName), "<undefined>");                       \
-}
+} while(0)
 
 #define ASSERT_COMPARE(expected, actual, operator) do                          \
 {                                                                              \
@@ -119,10 +119,10 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
 // Check boolean expression and not an error code
 // Checking return value of snprintf to stop GCC from throwing error about
 // format truncation.
-#define TEST_TRUE(st)                                                          \
+#define TEST_TRUE(st) do                                                       \
 {                                                                              \
     char msg[MAX_MSG_LEN];                                                     \
     int ret = snprintf(msg, sizeof(msg), "@%s: %s", testName, #st);            \
     if(ret>=sizeof(msg)) { /*Message was truncated */};                        \
     ((void)((st) || (__assert_fail(msg, __FILE__, __LINE__, __func__), 0)));   \
-}
+} while(0)
