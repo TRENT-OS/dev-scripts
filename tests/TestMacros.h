@@ -53,7 +53,7 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
 // to spot.
 #define TEST_FINISH()                                                          \
   {                                                                            \
-    Debug_PRINTFLN("!!! %s: OK", testName);                                    \
+    Debug_LOG_INFO("!!! %s: OK", testName);                                    \
     snprintf(testName, sizeof(testName), "<undefined>");                       \
   }
 
