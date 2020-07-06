@@ -151,8 +151,16 @@ do {                                                                           \
 // format truncation.
 #define TEST_TRUE(st) do                                                       \
 {                                                                              \
-    char msg[MAX_MSG_LEN];                                                     \
-    int ret = snprintf(msg, sizeof(msg), "@%s: %s", testName, #st);            \
-    if(ret>=sizeof(msg)) { /*Message was truncated */};                        \
-    ((void)((st) || (__assert_fail(msg, __FILE__, __LINE__, __func__), 0)));   \
+    if(!(st))                                                                  \
+    {                                                                          \
+        char msg[MAX_MSG_LEN];                                                 \
+        int ret = snprintf(msg, sizeof(msg), "@%s: %s", testName, #st);        \
+                                                                               \
+        if(ret>=sizeof(msg))                                                   \
+        {                                                                      \
+            printf("Message was truncated.\n");                                \
+        }                                                                      \
+                                                                               \
+        __assert_fail(msg, __FILE__, __LINE__, __func__);                      \
+    }                                                                          \
 } while(0)
