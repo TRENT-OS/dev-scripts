@@ -1,7 +1,21 @@
-/**
- * Copyright (C) 2019-2020, Hensoldt Cyber GmbH
- */
+/* Copyright (C) 2019-2020, Hensoldt Cyber GmbH */
 
+/**
+ * @file
+ * @brief   Component's test API
+ *
+ * Feel free to use the macros that are provided here for testing your software
+ * module.
+ *
+ * Each test group must be started with the TEST_START() and ended with the
+ * TEST_FINISH() macro.
+ *
+ * Once the tests are written, just pipe the output to the test_parser.py, so
+ * that the pytest part can be generated.
+ *
+ * @see https://wiki.hensoldt-cyber.systems/display/HEN/Testing+SEOS+with+PyTest
+ *
+ */
 #pragma once
 
 #include "LibDebug/Debug.h"
@@ -57,8 +71,22 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
     snprintf(testName, sizeof(testName), "<undefined>");                       \
 } while(0)
 
-#define ASSERT_COMPARE(expected, actual, operator) do                          \
-{                                                                              \
+/**
+ * @brief   Compares expected and actual values with a given operator.
+ *
+ * @note    Use this macro only if other ASSERT_xx macros are not sufficient.
+ *
+ * @note    Any C operator is accepted as parameter here as long as the result
+ *          is a boolean value.
+ *
+ * @see     Other ASSERT_x macros for specific comparision functions.
+ *
+ * @param   expected - [in] Expected value to be compered with.
+ * @param   actual   - [in] Actual value that expected is compared with.
+ * @param   operator - [in] Comparision operator e.g. `==`, `<`, `>`.
+ */
+#define ASSERT_COMPARE(expected actual, operator)
+do {                                                                           \
     if(!(expected operator actual))                                            \
     {                                                                          \
         char msg[MAX_MSG_LEN];                                                 \
@@ -82,6 +110,7 @@ static char testName[MAX_MSG_LEN] = "<undefined>";
     }                                                                          \
 } while(0)
 
+// Standard gtest compatible comparision macros.
 #define ASSERT_EQ(expected, actual) ASSERT_COMPARE(expected, actual, ==)
 #define ASSERT_NE(expected, actual) ASSERT_COMPARE(expected, actual, !=)
 
