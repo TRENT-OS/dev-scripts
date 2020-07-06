@@ -139,6 +139,7 @@ do {                                                                           \
 #define TEST_ACC_DENIED(fn)     ASSERT_EQ(OS_ERROR_ACCESS_DENIED,       fn)
 #define TEST_NOT_FOUND(fn)      ASSERT_EQ(OS_ERROR_NOT_FOUND,           fn)
 #define TEST_INVAL_HANDLE(fn)   ASSERT_EQ(OS_ERROR_INVALID_HANDLE,      fn)
+#define TEST_INVAL_STATE(fn)    ASSERT_EQ(OS_ERROR_INVALID_STATE,       fn)
 #define TEST_INVAL_NAME(fn)     ASSERT_EQ(OS_ERROR_INVALID_NAME,        fn)
 #define TEST_INVAL_PARAM(fn)    ASSERT_EQ(OS_ERROR_INVALID_PARAMETER,   fn)
 #define TEST_NOT_SUPP(fn)       ASSERT_EQ(OS_ERROR_NOT_SUPPORTED,       fn)
