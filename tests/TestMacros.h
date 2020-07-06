@@ -164,3 +164,6 @@ do {                                                                           \
         __assert_fail(msg, __FILE__, __LINE__, __func__);                      \
     }                                                                          \
 } while(0)
+
+#define ASSERT_TRUE(actual)  TEST_TRUE(actual)
+#define ASSERT_FALSE(actual) TEST_TRUE(!actual)
