@@ -28,8 +28,9 @@ function pull_and_archive_image()
 
     # docker save ${IMAGE_SHORT_ID} | pv | gzip > ${IMAGE_ARCHIVE}.gz
     docker save ${IMAGE_SHORT_ID} | pv | bzip2 > ${IMAGE_ARCHIVE}.bz2
+    # docker save ${IMAGE_SHORT_ID} | pv | pbzip2 > ${IMAGE_ARCHIVE}.bz2
     # docker save ${IMAGE_SHORT_ID} | pv | pxz > ${IMAGE_ARCHIVE}.xz
-
+    
     sha256sum ${IMAGE_ARCHIVE}.bz2
 
 }
