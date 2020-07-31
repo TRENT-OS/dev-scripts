@@ -7,7 +7,12 @@ function pull_and_archive_image()
     docker pull ${IMAGE_ID}
 
     echo "Container Details:"
-    docker inspect --format='{{.Config.Image}}' ${IMAGE_ID}
+
+    echo "Container ID"
+    docker inspect --format='{{.Id}}' ${IMAGE_ID}
+
+    echo "Repository tag"
+    docker inspect --format='{{.RepoDigests}}' ${IMAGE_ID}
 
     local IMAGE_SHORT_ID=${IMAGE_ID#*/}
     # "trentos_build:trentos_0.9" -> "trentos_build-0.9"
