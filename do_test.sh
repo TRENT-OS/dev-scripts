@@ -75,6 +75,10 @@ if [[ ${1:-} == "prepare" ]]; then
     if [ "$#" -eq 0 ]; then
         exit
     fi
+elif [[ ${1:-} == "qemu" ]]; then
+    shift
+    docker_sdk src/test.sh qemu "$@"
+    exit
 fi
 
 if [ "$#" -ne 0 ]; then
