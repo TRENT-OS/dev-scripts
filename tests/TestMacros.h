@@ -199,6 +199,20 @@ do {                                                                           \
 #define TEST_GENERIC(fn)          ASSERT_EQ_INT(OS_ERROR_GENERIC,            fn)
 #define TEST_SUCCESS(fn)          ASSERT_EQ_INT(OS_SUCCESS,                  fn)
 
+#define TEST_NOT_INSUFF_SPACE(fn) ASSERT_NE_INT(OS_ERROR_INSUFFICIENT_SPACE, fn)
+#define TEST_NOT_TOO_SMALL(fn)    ASSERT_NE_INT(OS_ERROR_BUFFER_TOO_SMALL,   fn)
+#define TEST_NOT_ABORTED(fn)      ASSERT_NE_INT(OS_ERROR_ABORTED,            fn)
+#define TEST_NOT_OP_DENIED(fn)    ASSERT_NE_INT(OS_ERROR_OPERATION_DENIED,   fn)
+#define TEST_NOT_ACC_DENIED(fn)   ASSERT_NE_INT(OS_ERROR_ACCESS_DENIED,      fn)
+#define TEST_NOT_NOT_FOUND(fn)    ASSERT_NE_INT(OS_ERROR_NOT_FOUND,          fn)
+#define TEST_NOT_INVAL_HANDLE(fn) ASSERT_NE_INT(OS_ERROR_INVALID_HANDLE,     fn)
+#define TEST_NOT_INVAL_STATE(fn)  ASSERT_NE_INT(OS_ERROR_INVALID_STATE,      fn)
+#define TEST_NOT_INVAL_NAME(fn)   ASSERT_NE_INT(OS_ERROR_INVALID_NAME,       fn)
+#define TEST_NOT_INVAL_PARAM(fn)  ASSERT_NE_INT(OS_ERROR_INVALID_PARAMETER,  fn)
+#define TEST_NOT_NOT_SUPP(fn)     ASSERT_NE_INT(OS_ERROR_NOT_SUPPORTED,      fn)
+#define TEST_NOT_GENERIC(fn)      ASSERT_NE_INT(OS_ERROR_GENERIC,            fn)
+#define TEST_NOT_SUCCESS(fn)      ASSERT_NE_INT(OS_SUCCESS,                  fn)
+
 // Check boolean expression and not an error code
 // Checking return value of snprintf to stop GCC from throwing error about
 // format truncation.
