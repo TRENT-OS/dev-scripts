@@ -88,11 +88,11 @@ function docker_manual()
 
 
 #-------------------------------------------------------------------------------
-function docker_sdk()
+function sdk_docker_build()
 {
     (
         cd seos_tests
-        src/seos_sandbox/scripts/open_trentos_build_env.sh $@
+        src/seos_sandbox/scripts/open_trentos_build_env.sh "$@"
     )
 }
 
@@ -100,4 +100,4 @@ function docker_sdk()
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 
-docker_sdk src/build.sh $@
+sdk_docker_build src/build.sh "$@"

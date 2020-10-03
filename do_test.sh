@@ -58,11 +58,11 @@ function docker_manual()
 
 
 #-------------------------------------------------------------------------------
-function docker_sdk()
+function sdk_docker_test()
 {
     (
         cd seos_tests
-        src/seos_sandbox/scripts/open_trentos_test_env.sh $@
+        src/seos_sandbox/scripts/open_trentos_test_env.sh "$@"
     )
 }
 
@@ -71,18 +71,18 @@ function docker_sdk()
 
 if [[ ${1:-} == "prepare" ]]; then
     shift
-    docker_sdk src/test.sh prepare
+    sdk_docker_test src/test.sh prepare
     if [ "$#" -eq 0 ]; then
         exit
     fi
 elif [[ ${1:-} == "qemu" ]]; then
     shift
-    docker_sdk src/test.sh qemu "$@"
+    sdk_docker_test src/test.sh qemu "$@"
     exit
 fi
 
 if [ "$#" -ne 0 ]; then
-    SEOS_TESTS=$@
+    SEOS_TESTS="$@"
 fi
 
-docker_sdk src/test.sh run ${SEOS_TESTS} --capture=no #  -k [1024]
+sdk_docker_test src/test.sh run ${SEOS_TESTS} --capture=no #  -k [1024]
