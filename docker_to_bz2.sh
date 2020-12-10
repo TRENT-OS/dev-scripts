@@ -30,10 +30,10 @@ function pull_and_archive_image()
     docker save ${IMAGE_SHORT_ID} | pv | bzip2 > ${IMAGE_ARCHIVE}.bz2
     # docker save ${IMAGE_SHORT_ID} | pv | pbzip2 > ${IMAGE_ARCHIVE}.bz2
     # docker save ${IMAGE_SHORT_ID} | pv | pxz > ${IMAGE_ARCHIVE}.xz
-    
+
     sha256sum ${IMAGE_ARCHIVE}.bz2
 
 }
 
-pull_and_archive_image docker:5000/trentos_test:trentos_1.0
-pull_and_archive_image docker:5000/trentos_build:trentos_1.0
+pull_and_archive_image docker:5000/trentos_test:trentos_1.1
+pull_and_archive_image docker:5000/trentos_build:trentos_1.1
