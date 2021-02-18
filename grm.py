@@ -317,8 +317,6 @@ def print_repo_info(repo, name="", level=0):
         print_repo_info(sm.module(), sm.name, level+1)
 
 
-
-
 #-------------------------------------------------------------------------------
 def main():
     # print("Python: " + platform.python_version())
