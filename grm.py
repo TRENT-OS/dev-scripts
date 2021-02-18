@@ -20,10 +20,10 @@ def branch_info_str(branch):
 #-------------------------------------------------------------------------------
 def add_branch_to_dict(d, branch):
     commit = branch.commit
-    if commit in d:
-        d[commit].append(branch)
-    else:
-        d[commit] = [branch]
+    if not commit in d:
+        d[commit] = []
+    d[commit].append(branch)
+
 
 #-------------------------------------------------------------------------------
 def group_branches_by_commit(branch_list):
