@@ -80,8 +80,8 @@ function do_repackage()
 {
     local ARCHIVE_NAME=${1}
 
-    do_tar ${ARCHIVE_NAME}.bz2 pkg
-    do_untar ${ARCHIVE_NAME}.bz2 ${ARCHIVE_NAME}
+    do_tar ${ARCHIVE_NAME}.tar.bz2 pkg
+    do_untar ${ARCHIVE_NAME}.tar.bz2 ${ARCHIVE_NAME}
     diff -r pkg ${ARCHIVE_NAME}
 }
 
@@ -114,6 +114,6 @@ mkdir -p pkg/docker
 do_repackage ${ARCHIVE_BIG}
 
 sha256sum \
-    ${ARCHIVE_SMALL}.bz2 \
-    ${ARCHIVE_BIG}.bz2 \
+    ${ARCHIVE_SMALL}.tar.bz2 \
+    ${ARCHIVE_BIG}.tar.bz2 \
     > trentos_SDK_v${RELEASE_VERSION}.sha256sums
