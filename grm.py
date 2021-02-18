@@ -97,15 +97,15 @@ def get_branches(repo):
         for branch in branches:
             #print(branch.name)
 
-            branch_commmit = branch.commit
+            branch_commit = branch.commit
 
-            if (branch_commmit == head_commit):
+            if (branch_commit == head_commit):
                 is_same.append(branch)
 
-            elif repo.is_ancestor(branch_commmit, head_commit):
+            elif repo.is_ancestor(branch_commit, head_commit):
                 add_branch_to_dict(is_ancestor, branch)
 
-            elif repo.is_ancestor(head_commit, branch_commmit):
+            elif repo.is_ancestor(head_commit, branch_commit):
                 add_branch_to_dict(is_child, branch)
 
             else:
@@ -289,30 +289,30 @@ def print_repo_info(repo, name="", level=0):
     #if is_ancestor:
     #    print(str_indent2 + "ancestors:")
     #    for branch in is_ancestor:
-    #        branch_commmit = branch.commit
+    #        branch_commit = branch.commit
     #        c = head_commit
     #        cnt = 0
-    #        while (c != branch_commmit):
+    #        while (c != branch_commit):
     #            c = c.parents[0]
     #            cnt += 1
     #            #print(str_indent2 + " " + c.hexsha[:8] + " " + c.summary)
-    #            #branch_commmit = c
-    #            #if (0 == len(branch_commmit.parents)): break
+    #            #branch_commit = c
+    #            #if (0 == len(branch_commit.parents)): break
     #
     #
     #
-    #        print(str_indent2 + "  " + branch_commmit.hexsha[:8] +
+    #        print(str_indent2 + "  " + branch_commit.hexsha[:8] +
     #            " [" + branch.name + "]+" + str(cnt) +
-    #            #" \"" + branch_commmit.summary + "\""
+    #            #" \"" + branch_commit.summary + "\""
     #            "")
 
     # if is_unrelated:
     #     print(str_indent2 + "other branches:")
     #     for branch in is_unrelated:
-    #         branch_commmit = branch.commit
-    #         print(str_indent2 + "  " + branch_commmit.hexsha[:8] +
+    #         branch_commit = branch.commit
+    #         print(str_indent2 + "  " + branch_commit.hexsha[:8] +
     #             " [" + branch.name + "]" +
-    #             " \"" + branch_commmit.summary + "\"" )
+    #             " \"" + branch_commit.summary + "\"" )
 
     for sm in sorted(repo.submodules, key=lambda sm: sm.name):
         print(str_indent)
