@@ -84,7 +84,7 @@ def get_filtered_branch_list(branch_list, filter_list):
                     branch_list) )
 
 #-------------------------------------------------------------------------------
-def get_branches(repo):
+def get_branches(repo, branch_filter = None):
 
     head_commit = repo.head.commit
 
@@ -97,6 +97,8 @@ def get_branches(repo):
         for branch in branches:
             #print(branch.name)
 
+            if branch_filter and (not branch.name in branch_filter):
+                continue
             branch_commit = branch.commit
 
             if (branch_commit == head_commit):
@@ -259,32 +261,30 @@ def print_repo_info(repo, name="", level=0):
     head_branch = repo.head
     head_commit = head_branch.commit
 
-    (is_same, is_ancestor, is_child, is_unrelated) = get_branches(repo)
-    same_branches = get_filtered_branch_list(is_same, ref_branches)
-    if same_branches:
-        print("{}{}".format(
+    (is_same, is_ancestor, is_child, is_unrelated) = get_branches(repo, ref_branches)
+
+    if is_same:
+        print("{} at {}".format(
                 str_indent,
-                get_commit_delta_str(0, same_branches)))
+                ", ".join(branch.name for branch in is_same)) )
+
+
 
 
 
     for commit, branches in is_ancestor.items():
-        branch_list = get_filtered_branch_list(branches, ref_branches)
-        if branch_list:
-            print("{}  {}".format(
-                    str_indent,
-                    get_commit_delta_str(
-                        get_ancestor_delta(head_commit, commit),
-                        branch_list) ))
+        print("{}  {}".format(
+                str_indent,
+                get_commit_delta_str(
+                    get_ancestor_delta(head_commit, commit),
+                    branches) ))
 
     for commit, branches in is_child.items():
-        branch_list = get_filtered_branch_list(branches, ref_branches)
-        if branch_list:
-            print("{}  {}".format(
-                    str_indent,
-                    get_commit_delta_str(
-                        -get_ancestor_delta(commit, head_commit),
-                        branch_list) ))
+        print("{}  {}".format(
+                str_indent,
+                get_commit_delta_str(
+                    -get_ancestor_delta(commit, head_commit),
+                    branches) ))
 
     #if is_ancestor:
     #    print(str_indent2 + "ancestors:")
