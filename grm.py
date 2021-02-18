@@ -105,9 +105,11 @@ def get_branches(repo, branch_filter = None):
                 is_same.append(branch)
 
             elif repo.is_ancestor(branch_commit, head_commit):
+                # delta = get_ancestor_delta(head_commit, branch_commit)
                 add_branch_to_dict(is_ancestor, branch)
 
             elif repo.is_ancestor(head_commit, branch_commit):
+                # delta = -get_ancestor_delta(branch_commit, head_commit)
                 add_branch_to_dict(is_child, branch)
 
             else:
