@@ -245,9 +245,17 @@ def print_repo_info(repo, name="", level=0):
     #    print(str_indent + name + " " + get_repo_info(repo) )
 
     ref_branches = (
-        "integration",
+        # "integration-v1.2", "origin/integration-v1.2",
+        # "trentos-1.2",      "origin/trentos-1.2",
+        # "trentos",          "origin/trentos",
+        # "integration",      "origin/integration",
+        # "master",           "origin/master"
+
+        "origin/integration-v1.2",
+        "origin/trentos-1.2",
+        "origin/trentos-integration",
+        "origin/trentos",
         "origin/integration",
-        "master",
         "origin/master"
     )
 

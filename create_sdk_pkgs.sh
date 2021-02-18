@@ -1,7 +1,7 @@
 #!/bin/bash -uex
 
 RELEASE_VERSION="1.2"
-INPUT_ID=33
+INPUT_ID=36
 
 #-------------------------------------------------------------------------------
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
