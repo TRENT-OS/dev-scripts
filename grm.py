@@ -35,13 +35,12 @@ def group_branches_by_commit(branch_list):
 
 #-------------------------------------------------------------------------------
 def branches_info_str(branch_list):
-    s = ""
     d = group_branches_by_commit(branch_list)
-    for commit, branches in d.items():
-        s +=  "[{}]@{}".format(
-                    ", ".join(branch.name for branch in branches),
-                    commit.hexsha[:8])
-    return s
+    return ", ".join([
+                    "[{}]@{}".format(
+                        ", ".join(branch.name for branch in branches),
+                        commit.hexsha[:8] )
+                    for commit, branches in d.items() ] )
 
 
 #-------------------------------------------------------------------------------
