@@ -263,25 +263,21 @@ def print_repo_info(repo, name="", level=0):
 
     (is_same, is_ancestor, is_child, is_unrelated) = get_branches(repo, ref_branches)
 
+    def print_indented(s):
+        print("{}{}".format(str_indent, s))
+
     if is_same:
-        print("{} at {}".format(
-                str_indent,
-                ", ".join(branch.name for branch in is_same)) )
-
-
-
-
+        print_indented(
+            "at {}".format(", ".join(branch.name for branch in is_same)) )
 
     for commit, branches in is_ancestor.items():
-        print("{}  {}".format(
-                str_indent,
+        print_indented("  {}".format(
                 get_commit_delta_str(
                     get_ancestor_delta(head_commit, commit),
                     branches) ))
 
     for commit, branches in is_child.items():
-        print("{}  {}".format(
-                str_indent,
+        print_indented("  {}".format(
                 get_commit_delta_str(
                     -get_ancestor_delta(commit, head_commit),
                     branches) ))
