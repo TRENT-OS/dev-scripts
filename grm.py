@@ -312,7 +312,7 @@ def print_repo_info(repo, name="", level=0):
     #             " [" + branch.name + "]" +
     #             " \"" + branch_commmit.summary + "\"" )
 
-    for sm in repo.submodules:
+    for sm in sorted(repo.submodules, key=lambda sm: sm.name):
         print(str_indent)
         print_repo_info(sm.module(), sm.name, level+1)
 
