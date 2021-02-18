@@ -280,16 +280,12 @@ def print_repo_info(repo, name="", level=0):
             "at {}".format(", ".join(branch.name for branch in is_same)) )
 
     for commit, branches in is_ancestor.items():
-        print_indented("  {}".format(
-                get_commit_delta_str(
-                    get_ancestor_delta(head_commit, commit),
-                    branches) ))
+        d = get_ancestor_delta(head_commit, commit)
+        print_indented("  {}".format(get_commit_delta_str(d,branches) ))
 
     for commit, branches in is_child.items():
-        print_indented("  {}".format(
-                get_commit_delta_str(
-                    -get_ancestor_delta(commit, head_commit),
-                    branches) ))
+        d = -get_ancestor_delta(commit, head_commit)
+        print_indented("  {}".format(get_commit_delta_str(d,branches) ))
 
     #if is_ancestor:
     #    print(str_indent2 + "ancestors:")
