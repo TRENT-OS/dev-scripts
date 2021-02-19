@@ -1,9 +1,7 @@
 #!/bin/bash -uex
 
 RELEASE_VERSION="1.2"
-RELEASE_DATE="UTC 2021-02-18 18:00:00"
-
-INPUT_ID=26
+INPUT_ID=33
 
 #-------------------------------------------------------------------------------
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
@@ -60,7 +58,6 @@ function do_tar()
     # fix file order and timestamps
     tar -cjf ${TAR_FILE} \
         --sort=name \
-        --mtime="${RELEASE_DATE}" \
         -C ${TAR_FOLDER} \
         .
 }
