@@ -13,16 +13,16 @@ REPOS=(
     capdl,seL4/capdl
     kernel,seL4/seL4
     libs/musllibc,seL4/musllibc sel4
-    libs/projects_libs,SEL4PROJ/projects_libs
-    libs/sel4_global_components,SEL4PROJ/global-components
+    libs/projects_libs,seL4/projects_libs
+    libs/sel4_global_components,seL4/global-components
     libs/sel4_libs,seL4/seL4_libs
-    libs/sel4_projects_libs,SEL4PROJ/seL4_projects_libs
+    libs/sel4_projects_libs,seL4/seL4_projects_libs
     libs/sel4_util_libs,seL4/util_libs
-    libs/sel4runtime,SEL4PROJ/sel4runtime
+    libs/sel4runtime,seL4/sel4runtime
     tools/camkes,seL4/camkes-tool
     tools/nanopb,nanopb/nanopb trentos
     tools/seL4,seL4/seL4_tools
-    tools/riscv-pk,SEL4PROJ/riscv-pk
+    tools/riscv-pk,seL4/riscv-pk
 )
 
 #-------------------------------------------------------------------------------
