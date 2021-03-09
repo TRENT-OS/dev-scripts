@@ -84,9 +84,13 @@ function checkout_from_github()
     echo "${SUBDIR} -> github ${SPEC}"
     echo "-----------------------------------------------------------------"
 
+    #git config --global credential.helper cache
+
     for e in "${REPOS[@]}"; do
         local REPO_SUBDIR=${e%,*}
         local GITHUB_REPO=${e#*,}
+        local GITHUB_REPO_OWNER=${GITHUB_REPO%/*}
+        local GITHUB_REPO_NAME=${GITHUB_REPO#*,}
         if [ "${REPO_SUBDIR}" != "${SUBDIR}" ]; then
             continue
         fi
@@ -106,6 +110,8 @@ function checkout_from_github()
                 cd ${SUBDIR}
                 set -x
                 git push origin ${NAME}
+                #git push github-hc ${NAME} || true
+                #git push axel-h ${NAME} || true
             )
         fi
     done
