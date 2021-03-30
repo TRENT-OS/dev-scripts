@@ -9,6 +9,7 @@
 #-------------------------------------------------------------------------------
 
 import os, sys, platform
+import argparse
 import git
 
 #-------------------------------------------------------------------------------
@@ -261,9 +262,7 @@ def print_repo_info(repo, name="", level=0):
         "origin/master"
     )
 
-    if not name:
-        print("(root)")
-    else:
+    if name:
         print("{}+-{}".format(str_indent_template * (level-1), name))
 
     print("{}{}".format(str_indent, get_repo_info(repo)))
@@ -326,16 +325,207 @@ def print_repo_info(repo, name="", level=0):
 
 
 #-------------------------------------------------------------------------------
-def main():
-    # print("Python: " + platform.python_version())
+def checkout_from_github(mapping, versions):
 
+    cwd = os.getcwd()
+
+    sdk_base_dir='seos_sandbox/sdk-sel4-camkes'
+
+    update_jobs = []
+    for folder, ver in versions.items():
+
+        sdk_folder = os.path.join(sdk_base_dir, folder)
+
+        if not folder in mapping:
+            raise Exception('missing repo for folder: {}'.format(folder))
+
+        (github_repo, main_brnach) = mapping[folder]
+        if ver is None:
+            ver = main_brnach
+
+        print('{: <32} {}@{}'.format(folder, github_repo, ver))
+
+        if not os.path.exists(sdk_folder):
+            print('  missing SDK folder: {}'.format(sdk_folder))
+            continue
+
+        repo = git.Repo(sdk_folder)
+        assert not repo.bare
+
+        # for r in repo.remotes:
+        #     print('    {: <12} {}'.format(r.name, r.url))
+
+        for name in ['origin', 'github', 'github-hc', 'axel-h']:
+            if not any(remote.name == name for remote in repo.remotes):
+                print('  missing remote: {}'.format(name))
+
+        update_jobs.append( (folder, github_repo, ver, repo) )
+
+
+    print('')
+    print('updating ...')
+    print('')
+
+    for (folder, github_repo, ver, repo) in update_jobs:
+        print('{: <32} {}@{}'.format(folder, github_repo, ver))
+        r = repo.remotes['github']
+        assert r
+        (pre, sep, post) = ver.partition(':')
+        if sep:
+            ver = post
+        r.pull(ver)
+
+        if (not sep) or (pre == 'b'):
+            for name in ['origin', 'github-hc', 'axel-h']:
+                print('push {}...'.format(name))
+                r = repo.remotes[name]
+                r.push('HEAD:refs/heads/{}'.format(ver))
+
+            #r.push('github-hc', ver)
+            #r.push('axel-h/', ver)
+
+    #
+    #    repo = git.Repo(sdk_folder)
+    #    assert not repo.bare
+
+
+    #git config --global credential.helper cache
+    #
+    #for e in "${REPOS[@]}"; do
+    #    local REPO_SUBDIR=${e%,*}
+    #    local GITHUB_REPO=${e#*,}
+    #    local GITHUB_REPO_OWNER=${GITHUB_REPO%/*}
+    #    local GITHUB_REPO_NAME=${GITHUB_REPO#*,}
+    #    if [ "${REPO_SUBDIR}" != "${SUBDIR}" ]; then
+    #        continue
+    #    fi
+    #
+    #    (
+    #        cd ${SUBDIR}
+    #        set -x
+    #        git remote add github https://github.com/${GITHUB_REPO}.git || true
+    #    )
+    #
+    #    checkout_from_remote ${SUBDIR} github ${SPEC}
+    #
+    #    local TYPE=${SPEC%:*}
+    #    local NAME=${SPEC#*:}
+    #    if [ "${NAME}" = "${SPEC}" ] || [ "${TYPE}" = "b" ]; then
+    #        (
+    #            cd ${SUBDIR}
+    #            set -x
+    #            git push origin ${NAME}
+    #            git push github-hc ${NAME} || true
+    #            git push axel-h ${NAME} || true
+    #        )
+    #    fi
+    #done
+
+#-------------------------------------------------------------------------------
+def update_sel4():
+    REPOS = {
+        # mapping: folder -> repo
+        'capdl':                       ('seL4/capdl',              'master'),
+        'kernel':                      ('seL4/seL4',               'master'),
+        'libs/musllibc':               ('seL4/musllibc',           'sel4'),
+        'libs/projects_libs':          ('seL4/projects_libs',      'master'),
+        'libs/sel4_global_components': ('seL4/global-components',  'master'),
+        'libs/sel4_libs':              ('seL4/seL4_libs',          'master'),
+        'libs/sel4_projects_libs':     ('seL4/seL4_projects_libs', 'master'),
+        'libs/sel4_util_libs':         ('seL4/util_libs',          'master'),
+        'libs/sel4runtime':            ('seL4/sel4runtime',        'master'),
+        'tools/camkes':                ('seL4/camkes-tool',        'master'),
+        'tools/nanopb':                ('nanopb/nanopb',           'master'),
+        'tools/seL4':                  ('seL4/seL4_tools',         'master'),
+        'tools/riscv-pk':              ('seL4/riscv-pk',           'master'),
+        'tools/opensbi':               ('riscv/opensbi',           'master'),
+    }
+
+    VERSION_RELEASE_OLD = {
+        'capdl':                       't:0.1.0',
+        'kernel':                      't:11.0.0',
+        'libs/musllibc':               '11.0.x-compatible',
+        'libs/projects_libs':          '11.0.x-compatible',
+        'libs/sel4_global_components': 'camkes-3.8.x-compatible',
+        'libs/sel4_libs':              '11.0.x-compatible',
+        'libs/sel4_projects_libs':     '11.0.x-compatible',
+        'libs/sel4_util_libs':         '11.0.x-compatible',
+        'libs/sel4runtime':            '11.0.x-compatible',
+        'tools/camkes':                't:camkes-3.8.0',
+        'tools/nanopb':                'c:847ac296b50936a8b13d1434080cef8edeba621c',
+        'tools/seL4':                  '11.0.x-compatible',
+        'tools/riscv-pk':              '11.0.x-compatible',
+    }
+
+    VERSION_RELEASE_2020_11 = {
+        'capdl':                       't:0.2.0',
+        'kernel':                      't:12.0.0',
+        'libs/musllibc':               '12.0.x-compatible',
+        'libs/projects_libs':          '12.0.x-compatible',
+        'libs/sel4_global_components': 'camkes-3.9.x-compatible',
+        'libs/sel4_libs':              '12.0.x-compatible',
+        'libs/sel4_projects_libs':     '12.0.x-compatible',
+        'libs/sel4_util_libs':         '12.0.x-compatible',
+        'libs/sel4runtime':            '12.0.x-compatible',
+        'tools/camkes':                't:camkes-3.9.0',
+        'tools/nanopb':                'c:847ac296b50936a8b13d1434080cef8edeba621c',
+        'tools/seL4':                  '12.0.x-compatible',
+        'tools/riscv-pk':              '12.0.x-compatible',
+    }
+
+    VERSION_CUTTING_EDGE = {
+        'capdl':                       None,
+        'kernel':                      None,
+        'libs/musllibc':               None,
+        'libs/projects_libs':          None,
+        'libs/sel4_global_components': None,
+        'libs/sel4_libs':              None,
+        'libs/sel4_projects_libs':     None,
+        'libs/sel4_util_libs':         None,
+        'libs/sel4runtime':            None,
+        'tools/camkes':                None,
+        'tools/nanopb':                'c:847ac296b50936a8b13d1434080cef8edeba621c',
+        'tools/seL4':                  None,
+        'tools/riscv-pk':              '12.0.x-compatible',
+        'tools/opensbi':               None,
+    }
+
+    checkout_from_github(REPOS, VERSION_CUTTING_EDGE)
+
+
+#-------------------------------------------------------------------------------
+def main():
+
+    parser = argparse.ArgumentParser()
+    group = parser.add_mutually_exclusive_group()
+
+    group.add_argument(
+        '--update-sel4', # stored as update_sel4
+        action='store_true')
+
+    group.add_argument(
+        '--repo-info', # stored as repo_info
+        action='store_true')
+
+    parser.set_defaults(repo_info=True)
+    args = parser.parse_args()
+
+    #print(args)
+
+    # print("Python: " + platform.python_version())
     cwd = os.getcwd()
     print("working dir: " + cwd)
 
-    repo = git.Repo(cwd)
-    assert not repo.bare
+    if args.update_sel4:
+        update_sel4()
 
-    print_repo_info(repo)
+    elif args.repo_info:
+        repo = git.Repo(cwd)
+        assert not repo.bare
+        print_repo_info(repo)
+
+    else:
+        parser.print_help()
 
     # print local branches
     # heads = repo.heads
