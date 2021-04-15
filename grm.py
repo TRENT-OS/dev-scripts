@@ -494,6 +494,100 @@ def update_sel4():
 
 
 #-------------------------------------------------------------------------------
+def update_systems():
+    REPOS = [
+        'src/demos/demo_hello_world',
+        'src/demos/demo_i2c',
+        'src/demos/demo_iot_app',
+        'src/demos/demo_iot_app_imx6',
+        'src/demos/demo_iot_app_rpi3',
+        'src/demos/demo_raspi_ethernet',
+        'src/demos/demo_tls_api',
+        'src/tests/test_certparser',
+        'src/tests/test_certserver',
+        'src/tests/test_chanmux',
+        'src/tests/test_config_server',
+        'src/tests/test_crypto_api',
+        'src/tests/test_cryptoserver',
+        'src/tests/test_entropysource',
+        'src/tests/test_filesystem',
+        'src/tests/test_keystore',
+        'src/tests/test_logserver',
+        'src/tests/test_network_api',
+        'src/tests/test_proxy_nvm',
+        'src/tests/test_secure_update',
+        'src/tests/test_storage_interface',
+        'src/tests/test_timeserver',
+        'src/tests/test_tls_api',
+        'src/tests/test_tlsserver',
+        'src/tests/test_uart',
+        'seos_sandbox/os_core_api',
+        'seos_sandbox/components/CertServer',
+        'seos_sandbox/components/ChanMux',
+        'seos_sandbox/components/CryptoServer',
+        'seos_sandbox/components/EntropySource',
+        'seos_sandbox/components/NIC_ChanMux',
+        'seos_sandbox/components/NIC_Dummy',
+        'seos_sandbox/components/NIC_iMX6',
+        'seos_sandbox/components/NIC_RPi',
+        'seos_sandbox/components/RamDisk',
+        'seos_sandbox/components/RPi_SPI_Flash',
+        'seos_sandbox/components/SdHostController',
+        'seos_sandbox/components/Storage_ChanMux',
+        'seos_sandbox/components/StorageServer',
+        'seos_sandbox/components/SysLogger',
+        'seos_sandbox/components/TimeServer',
+        'seos_sandbox/components/TlsServer',
+        'seos_sandbox/components/UART',
+        'seos_sandbox/libs/chanmux',
+        'seos_sandbox/libs/chanmux_nic_driver',
+        'seos_sandbox/libs/lib_compiler',
+        'seos_sandbox/libs/lib_debug',
+        'seos_sandbox/libs/lib_host',
+        'seos_sandbox/libs/lib_io',
+        'seos_sandbox/libs/lib_logs',
+        'seos_sandbox/libs/lib_macros',
+        'seos_sandbox/libs/lib_mem',
+        'seos_sandbox/libs/lib_osal',
+        'seos_sandbox/libs/lib_server',
+        'seos_sandbox/libs/lib_utils',
+        'seos_sandbox/libs/os_cert',
+        'seos_sandbox/libs/os_configuration',
+        'seos_sandbox/libs/os_crypto',
+        'seos_sandbox/libs/os_filesystem',
+        'seos_sandbox/libs/os_keystore',
+        'seos_sandbox/libs/os_logger',
+        'seos_sandbox/libs/os_network_stack',
+        'seos_sandbox/libs/os_tls',
+        'seos_sandbox/tools/cpt',
+        'seos_sandbox/tools/kpt',
+        'seos_sandbox/tools/proxy',
+        'seos_sandbox/tools/rdgen',
+        'seos_sandbox/tools/rpi3_flasher',
+    ]
+
+    cwd = os.getcwd()
+    sdk_base_dir = ''
+
+    update_jobs = []
+    for folder in REPOS:
+
+        sdk_folder = os.path.join(sdk_base_dir, folder)
+        repo = git.Repo(sdk_folder)
+        assert not repo.bare
+        ver = 'integration'
+        remote = 'origin'
+        print('{: <32} {}@{}'.format(folder, remote, ver))
+        try:
+            r = repo.remotes[remote]
+            assert r
+            r.pull(ver)
+        except:
+            print('FAILURE: {}'.format(folder))
+
+
+
+#-------------------------------------------------------------------------------
 def main():
 
     parser = argparse.ArgumentParser()
@@ -501,6 +595,10 @@ def main():
 
     group.add_argument(
         '--update-sel4', # stored as update_sel4
+        action='store_true')
+
+    group.add_argument(
+        '--update-systems', # stored as update_systems
         action='store_true')
 
     group.add_argument(
@@ -516,7 +614,10 @@ def main():
     cwd = os.getcwd()
     print("working dir: " + cwd)
 
-    if args.update_sel4:
+    if args.update_systems:
+        update_systems()
+
+    elif args.update_sel4:
         update_sel4()
 
     elif args.repo_info:
