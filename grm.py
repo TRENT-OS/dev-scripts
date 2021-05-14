@@ -332,7 +332,8 @@ def checkout_from_github(base_dir, mapping, versions):
     for subfolder, ver in versions.items():
 
         if not subfolder in mapping:
-            raise Exception('missing repo for folder: {}'.format(subfolder))
+            print('missing repo for folder: {}'.format(subfolder))
+            continue
 
         (github_repo, main_brnach) = mapping[subfolder]
         if ver is None:
