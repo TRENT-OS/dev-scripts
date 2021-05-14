@@ -325,31 +325,29 @@ def print_repo_info(repo, name="", level=0):
 
 
 #-------------------------------------------------------------------------------
-def checkout_from_github(mapping, versions):
-
-    sdk_base_dir='seos_sandbox/sdk-sel4-camkes'
+def checkout_from_github(base_dir, mapping, versions):
 
     update_jobs = []
-    for folder, ver in versions.items():
 
-        sdk_folder = os.path.join(sdk_base_dir, folder)
+    for subfolder, ver in versions.items():
 
-        if not folder in mapping:
-            raise Exception('missing repo for folder: {}'.format(folder))
+        if not subfolder in mapping:
+            raise Exception('missing repo for folder: {}'.format(subfolder))
 
-        (github_repo, main_brnach) = mapping[folder]
+        (github_repo, main_brnach) = mapping[subfolder]
         if ver is None:
             ver = main_brnach
 
-        print('{: <32} {}@{}'.format(folder, github_repo, ver))
+        print('{: <32} {}@{}'.format(subfolder, github_repo, ver))
 
-        if not os.path.exists(sdk_folder):
-            print('  missing SDK folder: {}'.format(sdk_folder))
+        repo_dir = os.path.join(base_dir, subfolder)
+        if not os.path.exists(repo_dir):
+            print('  missing SDK folder: {}'.format(repo_dir))
             continue
 
-        repo = git.Repo(sdk_folder)
+        repo = git.Repo(repo_dir)
         if repo.bare:
-            print('  unsupported bare repo: {}'.format(sdk_folder))
+            print('  unsupported bare repo: {}'.format(repo_dir))
             continue
 
         # for r in repo.remotes:
@@ -359,15 +357,15 @@ def checkout_from_github(mapping, versions):
             if not any(remote.name == name for remote in repo.remotes):
                 print('  missing remote: {}'.format(name))
 
-        update_jobs.append( (folder, github_repo, ver, repo) )
+        update_jobs.append( (subfolder, github_repo, ver, repo) )
 
 
     print('')
     print('updating ...')
     print('')
 
-    for (folder, github_repo, ver, repo) in update_jobs:
-        print('{: <32} {}@{}'.format(folder, github_repo, ver))
+    for (subfolder, github_repo, ver, repo) in update_jobs:
+        print('{: <32} {}@{}'.format(subfolder, github_repo, ver))
         r = repo.remotes['github']
         assert r
         (pre, sep, post) = ver.partition(':')
@@ -451,7 +449,10 @@ def update_sel4():
         'tools/opensbi':               None,
     }
 
-    checkout_from_github(REPOS, VERSION_CUTTING_EDGE)
+    checkout_from_github(
+        'seos_sandbox/sdk-sel4-camkes',
+        REPOS,
+        VERSION_CUTTING_EDGE)
 
 
 #-------------------------------------------------------------------------------
