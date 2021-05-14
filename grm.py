@@ -348,7 +348,9 @@ def checkout_from_github(mapping, versions):
             continue
 
         repo = git.Repo(sdk_folder)
-        assert not repo.bare
+        if repo.bare:
+            print('  unsupported bare repo: {}'.format(sdk_folder))
+            continue
 
         # for r in repo.remotes:
         #     print('    {: <12} {}'.format(r.name, r.url))
