@@ -331,15 +331,11 @@ def checkout_from_github(base_dir, mapping, versions):
 
     for subfolder, ver in versions.items():
 
+        print('{}'.format(subfolder))
+
         if not subfolder in mapping:
-            print('missing repo for folder: {}'.format(subfolder))
+            print('  missing repo for folder: {}'.format(subfolder))
             continue
-
-        (github_repo, main_brnach) = mapping[subfolder]
-        if ver is None:
-            ver = main_brnach
-
-        print('{: <32} {}@{}'.format(subfolder, github_repo, ver))
 
         repo_dir = os.path.join(base_dir, subfolder)
         if not os.path.exists(repo_dir):
@@ -351,6 +347,12 @@ def checkout_from_github(base_dir, mapping, versions):
             print('  unsupported bare repo: {}'.format(repo_dir))
             continue
 
+        (github_repo, main_brnach) = mapping[subfolder]
+        if ver is None:
+            ver = main_brnach
+
+        print('  update to github:{}@{}'.format(github_repo, ver))
+
         # for r in repo.remotes:
         #     print('    {: <12} {}'.format(r.name, r.url))
 
@@ -358,15 +360,6 @@ def checkout_from_github(base_dir, mapping, versions):
             if not any(remote.name == name for remote in repo.remotes):
                 print('  missing remote: {}'.format(name))
 
-        update_jobs.append( (subfolder, github_repo, ver, repo) )
-
-
-    print('')
-    print('updating ...')
-    print('')
-
-    for (subfolder, github_repo, ver, repo) in update_jobs:
-        print('{: <32} {}@{}'.format(subfolder, github_repo, ver))
         r = repo.remotes['github']
         assert r
         (pre, sep, post) = ver.partition(':')
@@ -376,7 +369,7 @@ def checkout_from_github(base_dir, mapping, versions):
 
         if (not sep) or (pre == 'b'):
             for name in ['origin', 'github-hc', 'axel-h']:
-                print('push {}...'.format(name))
+                print('  push {}...'.format(name))
                 r = repo.remotes[name]
                 r.push('HEAD:refs/heads/{}'.format(ver))
 
