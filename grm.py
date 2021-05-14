@@ -327,8 +327,6 @@ def print_repo_info(repo, name="", level=0):
 #-------------------------------------------------------------------------------
 def checkout_from_github(mapping, versions):
 
-    cwd = os.getcwd()
-
     sdk_base_dir='seos_sandbox/sdk-sel4-camkes'
 
     update_jobs = []
@@ -381,12 +379,6 @@ def checkout_from_github(mapping, versions):
                 r = repo.remotes[name]
                 r.push('HEAD:refs/heads/{}'.format(ver))
 
-            #r.push('github-hc', ver)
-            #r.push('axel-h/', ver)
-
-    #
-    #    repo = git.Repo(sdk_folder)
-    #    assert not repo.bare
 
 #-------------------------------------------------------------------------------
 def update_sel4():
