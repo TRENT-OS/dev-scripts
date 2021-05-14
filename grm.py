@@ -325,7 +325,12 @@ def print_repo_info(repo, name="", level=0):
 
 
 #-------------------------------------------------------------------------------
-def checkout_from_github(base_dir, mapping, versions):
+def checkout_from_github(
+    base_dir,
+    mapping,
+    versions,
+    src_remote,
+    remotes_to_update):
 
     update_jobs = []
 
@@ -347,28 +352,29 @@ def checkout_from_github(base_dir, mapping, versions):
             print('  unsupported bare repo: {}'.format(repo_dir))
             continue
 
-        (github_repo, main_brnach) = mapping[subfolder]
+        (src_repo, main_brnach) = mapping[subfolder]
         if ver is None:
             ver = main_brnach
-
-        print('  update to github:{}@{}'.format(github_repo, ver))
 
         # for r in repo.remotes:
         #     print('    {: <12} {}'.format(r.name, r.url))
 
-        for name in ['origin', 'github', 'github-hc', 'axel-h']:
-            if not any(remote.name == name for remote in repo.remotes):
+        check_remotes = [src_remote] + remotes_to_update
+        for name in check_remotes:
+            if not any(r.name == name for r in repo.remotes):
                 print('  missing remote: {}'.format(name))
 
-        r = repo.remotes['github']
+        r = repo.remotes[src_remote]
         assert r
         (pre, sep, post) = ver.partition(':')
         if sep:
             ver = post
+
+        print('  pull from {}:{}@{}'.format(src_remote, src_repo, ver))
         r.pull(ver)
 
         if (not sep) or (pre == 'b'):
-            for name in ['origin', 'github-hc', 'axel-h']:
+            for name in remotes_to_update:
                 print('  push {}...'.format(name))
                 r = repo.remotes[name]
                 r.push('HEAD:refs/heads/{}'.format(ver))
@@ -446,7 +452,9 @@ def update_sel4():
     checkout_from_github(
         'seos_sandbox/sdk-sel4-camkes',
         REPOS,
-        VERSION_CUTTING_EDGE)
+        VERSION_CUTTING_EDGE,
+        'github',
+        ['origin', 'github-hc', 'axel-h'])
 
 
 #-------------------------------------------------------------------------------
