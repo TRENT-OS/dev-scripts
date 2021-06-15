@@ -325,7 +325,7 @@ def print_repo_info(repo, name="", level=0):
 
 
 #-------------------------------------------------------------------------------
-def checkout_from_github(
+def update_from_remotes(
     base_dir,
     mapping,
     versions,
@@ -336,11 +336,16 @@ def checkout_from_github(
 
     for subfolder, ver in versions.items():
 
-        print('{}'.format(subfolder))
-
         if not subfolder in mapping:
-            print('  missing repo for folder: {}'.format(subfolder))
+            print('{}'.format(subfolder))
+            print('  ERROR: no repository defined')
             continue
+
+        (src_repo, main_brnach) = mapping[subfolder]
+        if ver is None:
+            ver = main_brnach
+
+        print('{}@{}'.format(subfolder, ver))
 
         repo_dir = os.path.join(base_dir, subfolder)
         if not os.path.exists(repo_dir):
@@ -352,32 +357,34 @@ def checkout_from_github(
             print('  unsupported bare repo: {}'.format(repo_dir))
             continue
 
-        (src_repo, main_brnach) = mapping[subfolder]
-        if ver is None:
-            ver = main_brnach
+        for r in repo.remotes:
+            url = r.url
+            if url.startswith('https://github.com'):
+                url = url.replace('https://github.com', 'ssh://git@github.com', 1)
+                print('  remote ''{}'': update url to {}'.format(r.name, url))
+                r.set_url(url)
 
-        # for r in repo.remotes:
-        #     print('    {: <12} {}'.format(r.name, r.url))
-
-        check_remotes = [src_remote] + remotes_to_update
-        for name in check_remotes:
-            if not any(r.name == name for r in repo.remotes):
-                print('  missing remote: {}'.format(name))
+        if not any(src_remote == r.name for r in repo.remotes):
+            print('  remote ''{}'': missing upstream source repo'.format(src_remote))
+            continue
 
         r = repo.remotes[src_remote]
-        assert r
         (pre, sep, post) = ver.partition(':')
         if sep:
             ver = post
 
-        print('  pull from {}:{}@{}'.format(src_remote, src_repo, ver))
-        r.pull(ver)
+        print('  remote {}: pull from {}'.format(src_remote, r.url))
+        m = r.pull(ver)
+        print('  commit {}'.format(m[0].commit))
 
         if (not sep) or (pre == 'b'):
             for name in remotes_to_update:
-                print('  push {}...'.format(name))
-                r = repo.remotes[name]
-                r.push('HEAD:refs/heads/{}'.format(ver))
+                if not any(name== r.name for r in repo.remotes):
+                    print('  remote {}: not set up'.format(name))
+                else:
+                    r = repo.remotes[name]
+                    print('  remote {}: push to {}'.format(r.name, r.url))
+                    r.push('HEAD:refs/heads/{}'.format(ver))
 
 
 #-------------------------------------------------------------------------------
@@ -464,7 +471,7 @@ def update_sel4():
         'tools/opensbi':               't:v0.9',
     }
 
-    checkout_from_github(
+    update_from_remotes(
         'seos_sandbox/sdk-sel4-camkes',
         REPOS,
         VERSION_CUTTING_EDGE,
