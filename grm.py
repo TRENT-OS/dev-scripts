@@ -432,6 +432,22 @@ def update_sel4():
         'tools/riscv-pk':              '12.0.x-compatible',
     }
 
+    VERSION_RELEASE_2021_06 = {
+        'capdl':                       't:0.2.1',
+        'kernel':                      't:12.1.0',
+        'libs/musllibc':               '12.1.x-compatible',
+        'libs/projects_libs':          '12.1.x-compatible',
+        'libs/sel4_global_components': 'camkes-3.9.x-compatible',
+        'libs/sel4_libs':              '12.1.x-compatible',
+        'libs/sel4_projects_libs':     '12.1.x-compatible',
+        'libs/sel4_util_libs':         '12.1.x-compatible',
+        'libs/sel4runtime':            '12.1.x-compatible',
+        'tools/camkes':                't:camkes-3.10.0',
+        'tools/nanopb':                'c:847ac296b50936a8b13d1434080cef8edeba621c',
+        'tools/seL4':                  '12.0.x-compatible',
+        'tools/opensbi':               't:v0.9',
+    }
+
     VERSION_CUTTING_EDGE = {
         'capdl':                       None,
         'kernel':                      None,
@@ -445,8 +461,7 @@ def update_sel4():
         'tools/camkes':                None,
         'tools/nanopb':                'c:847ac296b50936a8b13d1434080cef8edeba621c',
         'tools/seL4':                  None,
-        'tools/riscv-pk':              '12.0.x-compatible',
-        'tools/opensbi':               None,
+        'tools/opensbi':               't:v0.9',
     }
 
     checkout_from_github(
