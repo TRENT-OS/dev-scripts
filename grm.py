@@ -459,7 +459,7 @@ def update_sel4():
         'libs/sel4_util_libs':         None,
         'libs/sel4runtime':            None,
         'tools/camkes':                None,
-        'tools/nanopb':                'c:847ac296b50936a8b13d1434080cef8edeba621c',
+        'tools/nanopb':                't:0.4.3',
         'tools/seL4':                  None,
         'tools/opensbi':               't:v0.9',
     }
