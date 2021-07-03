@@ -361,11 +361,11 @@ def update_from_remotes(
             url = r.url
             if url.startswith('https://github.com'):
                 url = url.replace('https://github.com', 'ssh://git@github.com', 1)
-                print('  remote ''{}'': update url to {}'.format(r.name, url))
+                print('  remote \'{}\': update url to {}'.format(r.name, url))
                 r.set_url(url)
 
         if not any(src_remote == r.name for r in repo.remotes):
-            print('  remote ''{}'': missing upstream source repo'.format(src_remote))
+            print('  remote \'{}\': missing upstream source repo'.format(src_remote))
             continue
 
         r = repo.remotes[src_remote]
@@ -373,14 +373,14 @@ def update_from_remotes(
         if sep:
             ver = post
 
-        print('  remote {}: pull from {}'.format(src_remote, r.url))
+        print('  remote \'{}\': pull from {}'.format(src_remote, r.url))
         m = r.pull(ver)
         print('  commit {}'.format(m[0].commit))
 
         if (not sep) or (pre == 'b'):
             for name in remotes_to_update:
                 if not any(name== r.name for r in repo.remotes):
-                    print('  remote {}: not set up'.format(name))
+                    print('  remote \'{}\': not set up'.format(name))
                 else:
                     r = repo.remotes[name]
                     print('  remote {}: push to {}'.format(r.name, r.url))
