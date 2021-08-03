@@ -375,7 +375,9 @@ def update_from_remotes(
 
         print('  remote \'{}\': pull from {}'.format(src_remote, r.url))
         m = r.pull(ver)
-        print('  commit {}'.format(m[0].commit))
+        commit_id = m[0].commit
+        print('  commit {}'.format(commit_id))
+
 
         if (not sep) or (pre == 'b'):
             for name in remotes_to_update:
@@ -384,7 +386,7 @@ def update_from_remotes(
                 else:
                     r = repo.remotes[name]
                     print('  remote {}: push to {}'.format(r.name, r.url))
-                    r.push('HEAD:refs/heads/{}'.format(ver))
+                    r.push('{}:refs/heads/{}'.format(commit_id, ver), force=True)
 
 
 #-------------------------------------------------------------------------------
