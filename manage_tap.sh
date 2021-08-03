@@ -22,6 +22,19 @@ BRIDGE_MAC=$(ip -br link show ${NETWORK_INTERFACE_NAME} | awk '{print $3}')
 
 
 #-------------------------------------------------------------------------------
+function restart_dhcp_client()
+{
+    local INTERFACE=$1
+    # kill any dhclient already running and start the daemon again for the
+    # interface
+    if [ -n "$(pidof dhclient)" ]; then
+        kill -9 $(pidof dhclient)
+    fi
+    dhclient -v ${INTERFACE}
+}
+
+
+#-------------------------------------------------------------------------------
 function create_bridge()
 {
     # create the bridge
@@ -54,10 +67,7 @@ function create_bridge()
     iptables -A INPUT -i ${BRIDGE_NAME} -j ACCEPT
     iptables -A FORWARD -i ${BRIDGE_NAME} -j ACCEPT
 
-    # kill any dhclient already running and start the daemon again for
-    # the bridge
-    kill -9 $(pidof dhclient)
-    dhclient -v ${BRIDGE_NAME}
+    restart_dhcp_client ${BRIDGE_NAME}
 }
 
 
@@ -74,8 +84,7 @@ function remove_bridge()
 
     ip link set dev ${NETWORK_INTERFACE_NAME} up
 
-    kill -9 $(pidof dhclient)
-    dhclient -v ${NETWORK_INTERFACE_NAME}
+    restart_dhcp_client ${NETWORK_INTERFACE_NAME}
 }
 
 
