@@ -60,6 +60,11 @@ def get_commit_delta_str(cnt, branch_list):
 
 
 #-------------------------------------------------------------------------------
+def is_name_in_remotes(name, repo):
+    return any(name == r.name for r in repo.remotes)
+
+
+#-------------------------------------------------------------------------------
 def get_repo_info(repo):
 
     head = repo.head
@@ -361,7 +366,7 @@ def update_from_remotes(
                 print('  remote \'{}\': update url to {}'.format(r.name, url))
                 r.set_url(url)
 
-        if not any(src_remote == r.name for r in repo.remotes):
+        if not is_name_in_remotes(src_remote, repo):
             print('  remote \'{}\': missing upstream source repo'.format(src_remote))
             continue
 
@@ -381,7 +386,7 @@ def update_from_remotes(
         # update forked remote repos
         if version_is_branch:
             for name in remotes_to_update:
-                if not any(name == r.name for r in repo.remotes):
+                if not is_name_in_remotes(src_remote, repo):
                     print('  remote \'{}\': not set up'.format(name))
                 else:
                     r = repo.remotes[name]
