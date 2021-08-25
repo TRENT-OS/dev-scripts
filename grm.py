@@ -357,6 +357,7 @@ def update_from_remotes(
             print('  unsupported bare repo: {}'.format(repo_dir))
             continue
 
+        # switch remotes from https to ssh
         for r in repo.remotes:
             url = r.url
             if url.startswith('https://github.com'):
@@ -373,12 +374,13 @@ def update_from_remotes(
         if sep:
             ver = post
 
+        # update local repos from sel4 repos on github
         print('  remote \'{}\': pull from {}'.format(src_remote, r.url))
         m = r.pull(ver)
         commit_id = m[0].commit
         print('  commit {}'.format(commit_id))
 
-
+        # update forked remote repos
         if (not sep) or (pre == 'b'):
             for name in remotes_to_update:
                 if not any(name== r.name for r in repo.remotes):
