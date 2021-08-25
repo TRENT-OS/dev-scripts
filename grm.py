@@ -379,7 +379,7 @@ def update_from_remotes(
         # update forked remote repos
         if (not sep) or (pre == 'b'):
             for name in remotes_to_update:
-                if not any(name== r.name for r in repo.remotes):
+                if not any(name == r.name for r in repo.remotes):
                     print('  remote \'{}\': not set up'.format(name))
                 else:
                     r = repo.remotes[name]
