@@ -386,12 +386,12 @@ def update_from_remotes(
         # update forked remote repos
         if version_is_branch:
             for name in remotes_to_update:
-                if not is_name_in_remotes(src_remote, repo):
+                if not is_name_in_remotes(name, repo):
                     print('  remote \'{}\': not set up'.format(name))
-                else:
-                    r = repo.remotes[name]
-                    print('  remote {}: push to {}'.format(r.name, r.url))
-                    r.push('{}:refs/heads/{}'.format(commit_id, ver), force=True)
+                    continue
+                r = repo.remotes[name]
+                print('  remote {}: push to {}'.format(r.name, r.url))
+                r.push('{}:refs/heads/{}'.format(commit_id, ver), force=True)
 
 
 #-------------------------------------------------------------------------------
