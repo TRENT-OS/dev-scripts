@@ -367,7 +367,9 @@ def update_from_remotes(
 
         r = repo.remotes[src_remote]
         (pre, sep, post) = ver.partition(':')
+        version_is_branch = False
         if sep:
+            version_is_branch = (pre == 'b')
             ver = post
 
         # update local repos from sel4 repos on github
@@ -377,7 +379,7 @@ def update_from_remotes(
         print('  commit {}'.format(commit_id))
 
         # update forked remote repos
-        if (not sep) or (pre == 'b'):
+        if version_is_branch:
             for name in remotes_to_update:
                 if not any(name == r.name for r in repo.remotes):
                     print('  remote \'{}\': not set up'.format(name))
