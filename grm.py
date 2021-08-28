@@ -383,8 +383,8 @@ def update_from_remotes(
         commit_id = m[0].commit
         print('  commit {}'.format(commit_id))
 
-        # update forked remote repos
-        if version_is_branch:
+        # update forked remote repos if version is a commit ID or branch
+        if (not sep) or version_is_branch:
             for name in remotes_to_update:
                 if not is_name_in_remotes(name, repo):
                     print('  remote \'{}\': not set up'.format(name))
