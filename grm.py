@@ -390,7 +390,7 @@ def update_from_remotes(
                     print('  remote \'{}\': not set up'.format(name))
                     continue
                 r = repo.remotes[name]
-                print('  remote {}: push to {}'.format(r.name, r.url))
+                print('  remote \'{}\': push to {}'.format(r.name, r.url))
                 r.push('{}:refs/heads/{}'.format(commit_id, ver), force=True)
 
 
