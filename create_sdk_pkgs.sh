@@ -13,8 +13,8 @@ DOCKER_IAMGES=(
     trentos_test_${RELEASE_VERSION}.bz2 \
 )
 
-ARCHIVE_SMALL=TRENTOS-M_SDK_no_docker_${RELEASE_VERSION}
-ARCHIVE_BIG=TRENTOS-M_SDK_${RELEASE_VERSION}
+ARCHIVE_SMALL=TRENTOS_SDK_no_docker_${RELEASE_VERSION}
+ARCHIVE_BIG=TRENTOS_SDK_${RELEASE_VERSION}
 
 
 #-------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ mkdir ${TIMESTAMP}
 cd ${TIMESTAMP}
 do_untar ../${INPUT_PACKAGE} pkg/sdk
 
-ln -s sdk/doc/pdf/TRENTOS-M_GettingStarted_SDK_V${RELEASE_VERSION}.pdf pkg/GettingStarted.pdf
+ln -s sdk/doc/pdf/TRENTOS_GettingStarted_SDK_V${RELEASE_VERSION}.pdf pkg/GettingStarted.pdf
 ls -l pkg/sdk
 
 do_repackage ${ARCHIVE_SMALL}
