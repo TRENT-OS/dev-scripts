@@ -16,39 +16,6 @@ DOCKER_IAMGES=(
 ARCHIVE_SMALL=TRENTOS_SDK_no_docker_${RELEASE_VERSION}
 ARCHIVE_BIG=TRENTOS_SDK_${RELEASE_VERSION}
 
-
-#-------------------------------------------------------------------------------
-function export_image()
-{
-    local IMAGE_ID=${1}
-    local IMAGE_ARCHIVE=${2}
-
-    echo "saving ${IMAGE_ID} to ${IMAGE_ARCHIVE} ..."
-    docker inspect --format='{{.Config.Image}}' ${IMAGE_ID}
-    docker save ${IMAGE_ID} | pv | bzip2 > ${IMAGE_ARCHIVE}.bz2
-}
-
-
-#-------------------------------------------------------------------------------
-function pull_and_archive_image()
-{
-    local IMAGE_ID=${1}
-
-    echo "container: ${IMAGE_ID}"
-
-    # docker pull ${IMAGE_ID}
-    docker inspect --format='{{.Config.Image}}' ${IMAGE_ID}
-
-    # remove "docker:5000/" prefix
-    local STAND_ALONE_IMAGE_ID=${IMAGE_ID#*/}
-    echo "stand alone ID: ${STAND_ALONE_IMAGE_ID}"
-    docker tag ${IMAGE_ID} ${STAND_ALONE_IMAGE_ID}
-
-    # "trentos_build:trentos_0.9" -> "trentos_build-0.9"
-    IMAGE_ARCHIVE=${STAND_ALONE_IMAGE_ID%:*}_${STAND_ALONE_IMAGE_ID##*_}
-    export_image ${STAND_ALONE_IMAGE_ID} ${IMAGE_ARCHIVE}
-}
-
 #-------------------------------------------------------------------------------
 function do_tar()
 {
@@ -84,13 +51,6 @@ function do_repackage()
 
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
-
-#pull_and_archive_image docker:5000/trentos_test:trentos_${RELEASE_VERSION}
-#pull_and_archive_image docker:5000/trentos_build:trentos_${RELEASE_VERSION}
-
-#export_image trentos_test:trentos_${RELEASE_VERSION} trentos_test_${RELEASE_VERSION}
-#export_image trentos_build:trentos_${RELEASE_VERSION} trentos_build_${RELEASE_VERSION}
-
 
 mkdir ${TIMESTAMP}
 cd ${TIMESTAMP}
