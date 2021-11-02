@@ -1,14 +1,14 @@
 #!/bin/bash -uex
 
 RELEASE_VERSION="1.3"
-INPUT_ID=36
+JENKINS_BUILD_NR=2
 
 #-------------------------------------------------------------------------------
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
-INPUT_PACKAGE="sdk-package-v${RELEASE_VERSION}-${INPUT_ID}.tar.bz2"
+INPUT_PACKAGE="sdk-package-v${RELEASE_VERSION}-${JENKINS_BUILD_NR}.tar.bz2"
 
-DOCKER_IAMGES=(
+DOCKER_IMAGES=(
     trentos_build_${RELEASE_VERSION}.bz2 \
     trentos_test_${RELEASE_VERSION}.bz2 \
 )
@@ -64,8 +64,8 @@ do_repackage ${ARCHIVE_SMALL}
 mkdir -p pkg/docker
 (
     cd pkg/docker
-    cp ${DOCKER_IAMGES[@]/#/../../../} .
-    sha256sum ${DOCKER_IAMGES[@]} >trentos_${RELEASE_VERSION}.sha256sums
+    cp ${DOCKER_IMAGES[@]/#/../../../} .
+    sha256sum ${DOCKER_IMAGES[@]} >trentos_${RELEASE_VERSION}.sha256sums
 )
 
 do_repackage ${ARCHIVE_BIG}
