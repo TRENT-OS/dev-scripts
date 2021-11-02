@@ -3,14 +3,17 @@
 RELEASE_VERSION="1.3"
 JENKINS_BUILD_NR=2
 
+BUILD_CONTAINER_TAG="20210503"
+TEST_CONTAINER_TAG="20211025"
+
 #-------------------------------------------------------------------------------
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 
 INPUT_PACKAGE="sdk-package-v${RELEASE_VERSION}-${JENKINS_BUILD_NR}.tar.bz2"
 
 DOCKER_IMAGES=(
-    trentos_build_${RELEASE_VERSION}.bz2 \
-    trentos_test_${RELEASE_VERSION}.bz2 \
+    trentos_build_${BUILD_CONTAINER_TAG}.bz2 \
+    trentos_test_${TEST_CONTAINER_TAG}.bz2 \
 )
 
 ARCHIVE_SMALL=TRENTOS_SDK_no_docker_${RELEASE_VERSION}
