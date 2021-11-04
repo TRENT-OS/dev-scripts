@@ -49,7 +49,7 @@ function do_repackage()
 
     do_tar ${ARCHIVE_NAME}.tar.bz2 pkg
     do_untar ${ARCHIVE_NAME}.tar.bz2 ${ARCHIVE_NAME}
-    diff -r pkg ${ARCHIVE_NAME}
+    diff -r --no-dereference pkg ${ARCHIVE_NAME}
 }
 
 #-------------------------------------------------------------------------------
