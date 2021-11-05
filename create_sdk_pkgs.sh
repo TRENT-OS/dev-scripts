@@ -59,7 +59,7 @@ mkdir ${TIMESTAMP}
 cd ${TIMESTAMP}
 do_untar ../${INPUT_PACKAGE} pkg/sdk
 
-ln -s "sdk/doc/pdf/TRENTOS_GettingStarted_SDK_V*.pdf" pkg/GettingStarted.pdf
+ln -s "sdk/doc/pdf/TRENTOS_GettingStarted_SDK_V${RELEASE_VERSION}.pdf" pkg/GettingStarted.pdf
 ls -l pkg/sdk
 
 do_repackage ${ARCHIVE_SMALL}
