@@ -6,12 +6,13 @@ set -Eeuxo pipefail
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
-# Finds all the hyperlinks in the pdf files in the current directory, and checks
-# if they are valid by issuing an http request, and prints out the failing ones.
+# Finds all the external hyperlinks in the pdf files in the current directory,
+# and checks if they are valid by issuing an http request, and prints out the
+# failing ones.
 #
 # Example:
 #   cd <SDK_FOLDER>/sdk/doc/pdf
-#   <DEV_SCRIPTS_FOLDER>/dev-scripts/verify_links.sh
+#   <DEV_SCRIPTS_FOLDER>/dev-scripts/verify_external_links.sh
 #-------------------------------------------------------------------------------
 
 # Find all pdfs in the current dir (not recursively)...
