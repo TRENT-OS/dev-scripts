@@ -16,7 +16,8 @@ set -Eeuxo pipefail
 #-------------------------------------------------------------------------------
 
 # Find all pdfs in the current dir (not recursively)...
-while IFS= read -r -d '' file
+find . -maxdepth 1 -name "*.pdf" -type f -printf '%P\0' |
+while IFS='\0' read -r -d '' file
 do
     # ...convert all pdfs to html and store them to the tmp folder...
     pdftohtml -s -i -q "${file}" "/tmp/${file}";
@@ -34,4 +35,4 @@ do
     xargs -n 1 -I % sh -c \
         'curl --output /dev/null --silent --head --fail "file:///tmp/%" || echo "%"' \
     || :; # Keep looping even if failure encountered.
-done <   <(find . -maxdepth 1 -name "*.pdf" -type f -printf '%P\0')
+done
