@@ -71,18 +71,14 @@ function sdk_docker_test()
 
 if [[ ${1:-} == "prepare" ]]; then
     shift
-    sdk_docker_test src/test.sh prepare
+    sdk_docker_test src/build.sh test-prepare
     if [ "$#" -eq 0 ]; then
         exit
     fi
-elif [[ ${1:-} == "qemu" ]]; then
-    shift
-    sdk_docker_test src/test.sh qemu "$@"
-    exit
 fi
 
 if [ "$#" -ne 0 ]; then
     SEOS_TESTS="$@"
 fi
 
-sdk_docker_test src/test.sh run ${SEOS_TESTS} --capture=no #  -k [1024]
+sdk_docker_test src/build.sh test-run ${SEOS_TESTS} --capture=no #  -k [1024]
