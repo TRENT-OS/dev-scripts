@@ -326,6 +326,22 @@ def print_repo_info(repo, name="", level=0):
 
 
 #-------------------------------------------------------------------------------
+def switch_github_remote_to_ssh(remote):
+    # there can be remotes in .git/config that don't have any details,
+    # seems these are left overs from deleted remotes.
+    if not hasattr(remote, 'url'):
+        print('  ignoring remote \'{}\', no URL'.format(r.name))
+        return
+
+    url = remote.url
+    if not url.startswith('https://github.com'):
+        return
+
+    url = url.replace('https://github.com', 'ssh://git@github.com', 1)
+    print('  remote \'{}\': update url to {}'.format(remote.name, url))
+    remote.set_url(url)
+
+#-------------------------------------------------------------------------------
 def update_from_remotes(
     base_dir,
     mapping,
@@ -358,13 +374,9 @@ def update_from_remotes(
             print('  unsupported bare repo: {}'.format(repo_dir))
             continue
 
-        # switch remotes from https to ssh
+        # switch all github remotes from https to ssh
         for r in repo.remotes:
-            url = r.url
-            if url.startswith('https://github.com'):
-                url = url.replace('https://github.com', 'ssh://git@github.com', 1)
-                print('  remote \'{}\': update url to {}'.format(r.name, url))
-                r.set_url(url)
+            switch_github_remote_to_ssh(r)
 
         if not is_name_in_remotes(src_remote, repo):
             print('  remote \'{}\': missing upstream source repo'.format(src_remote))
