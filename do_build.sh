@@ -92,7 +92,8 @@ function sdk_docker_build()
 {
     (
         cd seos_tests
-        src/seos_sandbox/scripts/open_trentos_build_env.sh "$@"
+        set -x
+        src/seos_sandbox/scripts/open_trentos_analysis_env.sh "$@"
     )
 }
 
