@@ -330,7 +330,7 @@ def switch_github_remote_to_ssh(remote):
     # there can be remotes in .git/config that don't have any details,
     # seems these are left overs from deleted remotes.
     if not hasattr(remote, 'url'):
-        print('  ignoring remote \'{}\', no URL'.format(r.name))
+        print('  ignoring remote \'{}\', no URL'.format(remote.name))
         return
 
     url = remote.url
