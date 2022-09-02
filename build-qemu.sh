@@ -1,59 +1,174 @@
 #!/bin/bash -uex
 
-BUILD_SCRIPT_DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
+# Script to download and build QEMU.
+# See https://www.qemu.org/download/#source for more details
 
-function download_and_build_tag()
+
+#-------------------------------------------------------------------------------
+function build_qemu()
 {
-    local QEMU_VERSION=$1
-    local QEMU_TARGET_LIST=$2
+    QEMU_SRC=$1
+    QEMU_BUILD=$2
+    QEMU_BIN_ARCHIVE=$3
 
-    QEMU_BASE_DIR=qemu-${QEMU_VERSION}
+    QEMU_TARGETS=(
+        i386
+        x86_64
+        arm
+        aarch64
+        riscv32
+        riscv64
+        #microblazeel
+    )
 
-    QEMU_TAG=v${QEMU_VERSION}
-    QEMU_ARCHIVE=qemu-${QEMU_VERSION}.tar.xz
-
-    QEMU_CONFIG=(
-        --target-list=${QEMU_TARGET_LIST}
-        # don't require shared librarie libgtk-3.so.0
+    QEMU_CFG=(
+        --static # aim for a stand-alone binary with few library dependencies
+        --target-list=$(IFS=,; echo "${QEMU_TARGETS[*]/%/-softmmu}")
+        --audio-drv-list="" # don't require libpulse
+        --disable-brlapi
+        --disable-gio
         --disable-gtk
-        # don't require shared librarie libpulse.so.0
-        --audio-drv-list=""
+        --disable-kvm
+        --disable-libiscsi
+        --disable-libnfs
+        --disable-pa
+        --disable-rbd
+        --disable-sdl
+        --disable-snappy
+        --disable-vnc
+        --disable-xen
     )
 
-    # (
-    #     cd ${QEMU_SRC}
-    #     git checkout v${QEMU_TAG}
-    #     git submodule update --init --recursive --jobs 16
-    # )
-
-    if [ ! -d ${QEMU_TAG} ]; then
-        mkdir ${QEMU_BASE_DIR}
+    if [ ! -e ${QEMU_BUILD} ]; then
+        mkdir ${QEMU_BUILD}
     fi
-
     (
-        cd ${QEMU_BASE_DIR}
-
-        if [ ! -f ${QEMU_ARCHIVE} ]; then
-            wget https://download.qemu.org/${QEMU_ARCHIVE}
-        fi
-
-        if [ ! -d src ]; then
-            mkdir src
-            tar -xvf ${QEMU_ARCHIVE} -C src
-        fi
-        QEMU_SRC=$(cd src/qemu-${QEMU_VERSION}; pwd)
-
-        if [ ! -d build ]; then
-            mkdir build
-        fi
-
-        (
-            cd build
-            ${QEMU_SRC}/configure ${QEMU_CONFIG[@]}
-            make -j 8
-        )
+        cd ${QEMU_BUILD}
+        ../${QEMU_SRC}/configure ${QEMU_CFG[@]}
+        make -j
     )
+
+    TAR_PARAMS=(
+        -cvjf ${QEMU_BIN_ARCHIVE}
+        --sort=name     # ensure files are sorted
+        --numeric-owner # don't expose local user/group strings
+        --owner=0       # no owner (current user will be used when extracting)
+        --group=0       # no group (current user's primary group will be used when extracting)
+        # QEMU binaries
+        ${QEMU_TARGETS[@]/#/${QEMU_BUILD}/qemu-system-}
+        # QEMU tools
+        ${QEMU_BUILD}/qemu-bridge-helper
+        ${QEMU_BUILD}/qemu-edid
+        ${QEMU_BUILD}/qemu-img
+        ${QEMU_BUILD}/qemu-io
+        ${QEMU_BUILD}/qemu-nbd
+        ${QEMU_BUILD}/qemu-pr-helper
+    )
+    tar "${TAR_PARAMS[@]}"
 }
 
-#download_and_build_tag 5.2.0 riscv32-softmmu,riscv64-softmmu
-download_and_build_tag 6.0.0 riscv32-softmmu,riscv64-softmmu
+
+#-------------------------------------------------------------------------------
+function get_and_build_qemu()
+{
+    VER=$1
+    QEMU_ARCHIVE=qemu-${VER}.tar.xz
+    QEMU_SRC=qemu-${VER}
+    QEMU_BUILD=build-qemu-${VER}
+    QEMU_BIN_ARCHIVE=qemu-bin-${VER}.tar.bz2
+
+    if [ ! -d ${QEMU_SRC} ]; then
+        if [ ! -e ${QEMU_ARCHIVE} ]; then
+            wget https://download.qemu.org/${QEMU_ARCHIVE}
+        fi
+        tar -xf ${QEMU_ARCHIVE}
+    fi
+
+    build_qemu ${QEMU_SRC} ${QEMU_BUILD} ${QEMU_BIN_ARCHIVE}
+}
+
+#-------------------------------------------------------------------------------
+#function get_and_build_xilinx-qemu()
+#{
+#    # releases are available from
+#    # https://github.com/Xilinx/qemu/archive/refs/tagsxilinx_v${VER}.tar.gz
+#
+#    # prepare environment
+#    PACKAGES=(
+#        autoconf
+#        automake
+#        bison
+#        flex
+#        libtool
+#        libpixman-1-dev
+#        libglib2.0-dev
+#        libgcrypt20-dev
+#        zlib1g-dev
+#    )
+#    sudo apt install ${PACKAGES[@]}
+#    #
+#    git clone ssh://git@github.com/Xilinx/qemu.git .
+#    TAG=xilinx_v2022.1
+#    git checkout tags/${TAG}
+#    git submodule update --init --recursive --jobs 16
+#    build_qemu ${TAG}
+#}
+
+#-------------------------------------------------------------------------------
+
+if [ "$#" -eq 3 ]; then
+    build_qemu "$@"
+else
+    #get_and_build_qemu 2.2.0
+    #get_and_build_qemu 2.2.1
+    #get_and_build_qemu 2.3.0
+    #get_and_build_qemu 2.3.1
+    #get_and_build_qemu 2.4.0
+    #get_and_build_qemu 2.4.0.1
+    #get_and_build_qemu 2.4.1
+    #get_and_build_qemu 2.5.0
+    #get_and_build_qemu 2.5.1
+    #get_and_build_qemu 2.5.1.1
+    #get_and_build_qemu 2.6.0
+    #get_and_build_qemu 2.6.1
+    #get_and_build_qemu 2.6.2
+    #get_and_build_qemu 2.7.0
+    #get_and_build_qemu 2.7.1
+    #get_and_build_qemu 2.8.0
+    #get_and_build_qemu 2.8.1
+    #get_and_build_qemu 2.8.1.1
+    #get_and_build_qemu 2.9.0
+    #get_and_build_qemu 2.9.1
+    #get_and_build_qemu 2.10.0
+    #get_and_build_qemu 2.10.1
+    #get_and_build_qemu 2.10.2
+    #get_and_build_qemu 2.11.0
+    #get_and_build_qemu 2.11.1
+    #get_and_build_qemu 2.11.2
+    #get_and_build_qemu 2.12.0
+    #get_and_build_qemu 2.12.1
+    #get_and_build_qemu 3.0.0
+    #get_and_build_qemu 3.0.1
+    #get_and_build_qemu 3.1.0
+    #get_and_build_qemu 3.1.1
+    #get_and_build_qemu 3.1.1.1
+    #get_and_build_qemu 4.0.0
+    #get_and_build_qemu 4.0.1
+    #get_and_build_qemu 4.1.0
+    #get_and_build_qemu 4.1.1
+    #get_and_build_qemu 4.2.0
+    #get_and_build_qemu 4.2.1
+    #get_and_build_qemu 5.0.0
+    #get_and_build_qemu 5.0.1
+    #get_and_build_qemu 5.1.0
+    #get_and_build_qemu 5.2.0
+    #get_and_build_qemu 6.0.0
+    #get_and_build_qemu 6.0.1
+    #get_and_build_qemu 6.1.0
+    #get_and_build_qemu 6.1.1
+    #get_and_build_qemu 6.2.0
+    #get_and_build_qemu 7.0.0
+    #get_and_build_qemu 7.1.0
+    #get_and_build_qemu 7.2.0
+    get_and_build_qemu 8.0.0
+fi
