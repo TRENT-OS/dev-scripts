@@ -346,7 +346,7 @@ def update_from_remotes(
     base_dir,
     mapping,
     versions,
-    src_remote,
+    remote_upstream,
     remotes_to_update):
 
     update_jobs = []
@@ -378,11 +378,12 @@ def update_from_remotes(
         for r in repo.remotes:
             switch_github_remote_to_ssh(r)
 
-        if not is_name_in_remotes(src_remote, repo):
-            print('  remote \'{}\': missing upstream source repo'.format(src_remote))
+        # pull from upsteam repo
+        if not is_name_in_remotes(remote_upstream, repo):
+            print('  remote \'{}\': missing upstream source repo'.format(remote_upstream))
             continue
 
-        r = repo.remotes[src_remote]
+        r = repo.remotes[remote_upstream]
         (pre, sep, post) = ver.partition(':')
         version_is_branch = False
         if sep:
@@ -390,7 +391,7 @@ def update_from_remotes(
             ver = post
 
         # update local repos from sel4 repos on github
-        print('  remote \'{}\': pull from {}'.format(src_remote, r.url))
+        print('  remote \'{}\': pull from {}'.format(remote_upstream, r.url))
         m = r.pull(ver)
         commit_id = m[0].commit
         print('  commit {}'.format(commit_id))
