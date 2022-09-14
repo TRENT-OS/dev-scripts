@@ -320,23 +320,6 @@ def print_repo_info(repo, name="", level=0):
         print(str_indent)
         print_repo_info(sm.module(), sm.name, level+1)
 
-
-#-------------------------------------------------------------------------------
-def switch_github_remote_to_ssh(remote):
-    # there can be remotes in .git/config that don't have any details,
-    # seems these are left overs from deleted remotes.
-    if not hasattr(remote, 'url'):
-        print(f'  ignoring remote "{remote.name}", no URL'.format(remote.name))
-        return
-
-    url = remote.url
-    if not url.startswith('https://github.com'):
-        return
-
-    url = url.replace('https://github.com', 'ssh://git@github.com', 1)
-    print(f'  remote "{remote.name}": update url to {url}')
-    remote.set_url(url)
-
 #-------------------------------------------------------------------------------
 def update_from_remotes(
     base_dir,
@@ -370,9 +353,32 @@ def update_from_remotes(
             print(f'  unsupported bare repo: {repo_dir}')
             continue
 
-        # switch all github remotes from https to ssh
+        # legacy maintenance:
         for r in repo.remotes:
-            switch_github_remote_to_ssh(r)
+            if r.name == 'bb-hensoldt':
+                print(f'  deleting remote "{r.name}"')
+                repo.delete_remote(r.name);
+        REMOTE_UPDATE = {
+            'https://github.com': 'ssh://git@github.com',
+            'ssh://git@bitbucket.hensoldt-cyber.systems:7999': 'ssh://git@vm-bb-hensoldt:7999',
+            'ssh://git@bitbucket.cc.ebs.corp:7999': 'ssh://git@vm-bb-hensoldt:7999'
+        }
+        for r in repo.remotes:
+            # there can be remotes in .git/config that don't have any details,
+            # seems these are left overs from deleted remotes.
+            if not hasattr(r, 'url'):
+                print(f'  remote "{r.name}" has no URL')
+                continue
+            if hasattr(r, 'pushurl'):
+                print(f'  remote "{r.name}" has "pushurl" set to {r.pushurl}')
+
+            url = r.url
+            for key, value in REMOTE_UPDATE.items():
+                if not url.startswith(key):
+                    continue
+                url = url.replace(key, value, 1)
+                print(f'  remote "{r.name}": update url to {url}')
+                r.set_url(url)
 
         # pull from upsteam repo
         if not is_name_in_remotes(remote_upstream, repo):
@@ -492,7 +498,11 @@ def update_sel4():
         REPOS,
         VERSION_CUTTING_EDGE,
         'github',
-        ['origin', 'github-hc', 'axel-h'])
+        [
+            'origin',
+            'github-hc',
+            'axel-h'
+        ])
 
 
 #-------------------------------------------------------------------------------
