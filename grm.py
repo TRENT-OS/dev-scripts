@@ -408,6 +408,13 @@ def update_from_remotes(
                 print(f'  push to "{r.name}" at {r.url}')
                 r.push('{}:refs/heads/{}'.format(commit_id, ver), force=True)
 
+        # create/update branch 'trentos_update'
+        print('  set \'trentos_update\' to commit {}'.format(commit_id))
+        repo.create_head('trentos_update')
+        for name in remotes_to_update:
+            if name = 'origin':
+                r.push('trentos_update', force=True)
+
 
 #-------------------------------------------------------------------------------
 def update_sel4():
