@@ -14,7 +14,7 @@ import git
 
 #-------------------------------------------------------------------------------
 def branch_info_str(branch):
-    return "[{}]@{}".format(branch.name, branch.commit.hexsha[:8])
+    return f'[{branch.name}]@{branch.commit.hexsha[:8]}'
 
 
 #-------------------------------------------------------------------------------
@@ -37,11 +37,11 @@ def group_branches_by_commit(branch_list):
 #-------------------------------------------------------------------------------
 def branches_info_str(branch_list):
     d = group_branches_by_commit(branch_list)
-    return ", ".join([
-                    "[{}]@{}".format(
-                        ", ".join(branch.name for branch in branches),
-                        commit.hexsha[:8] )
-                    for commit, branches in d.items() ] )
+    return ", ".join(
+            [
+                f'{", ".join(branch.name for branch in branches)}@{commit.hexsha[:8]}'
+                for commit, branches in d.items()
+            ] )
 
 
 #-------------------------------------------------------------------------------
@@ -70,17 +70,14 @@ def get_repo_info(repo):
     head = repo.head
     commit = head.commit
 
-    branch_or_detached = "(detached)" if head.is_detached \
-                         else "[{}]".format(repo.active_branch.name)
+    branch_or_detached = '(detached)' if head.is_detached \
+                         else f'[{repo.active_branch.name}]'
 
     #tag_dirty_clean = "[{}]".format("dirty" if repo.is_dirty() else "clean")
     tag_dirty_clean = " [dirty]" if repo.is_dirty() else ""
 
 
-    return commit.hexsha[:8] + \
-            " " + branch_or_detached + \
-            tag_dirty_clean + \
-            " \"" + commit.summary + "\""
+    return f'{commit.hexsha[:8]} {branch_or_detached}{tag_dirty_clean} "{commit.summary}"'
 
 
 #-------------------------------------------------------------------------------
@@ -232,7 +229,7 @@ def get_ancestor_delta(
         (dist, parent, d) = seen_commits[commit]
         if (dist < distance):
             # this can't happen
-            raise Exception("{} <= {},  {} vs {} ".format(dist, distance, d, depth))
+            raise Exception(f'{dist} <= {distance}, {d} vs {depth}')
 
     seen_commits[commit] = (distance, best, depth)
 
@@ -268,9 +265,9 @@ def print_repo_info(repo, name="", level=0):
     )
 
     if name:
-        print("{}+-{}".format(str_indent_template * (level-1), name))
+        print(f'{str_indent_template * (level-1)}+-{name}')
 
-    print("{}{}".format(str_indent, get_repo_info(repo)))
+    print(f'{str_indent}{get_repo_info(repo)}')
 
     head_branch = repo.head
     head_commit = head_branch.commit
@@ -278,19 +275,18 @@ def print_repo_info(repo, name="", level=0):
     (is_same, is_ancestor, is_child, is_unrelated) = get_branches(repo, ref_branches)
 
     def print_indented(s):
-        print("{}{}".format(str_indent, s))
+        print(f'{str_indent}{s}')
 
     if is_same:
-        print_indented(
-            "at {}".format(", ".join(branch.name for branch in is_same)) )
+        print_indented("at " + ", ".join(branch.name for branch in is_same))
 
     for commit, branches in is_ancestor.items():
         d = get_ancestor_delta(head_commit, commit)
-        print_indented("  {}".format(get_commit_delta_str(d,branches) ))
+        print_indented("  " + get_commit_delta_str(d,branches))
 
     for commit, branches in is_child.items():
         d = -get_ancestor_delta(commit, head_commit)
-        print_indented("  {}".format(get_commit_delta_str(d,branches) ))
+        print_indented("  " + get_commit_delta_str(d,branches))
 
     #if is_ancestor:
     #    print(str_indent2 + "ancestors:")
@@ -330,7 +326,7 @@ def switch_github_remote_to_ssh(remote):
     # there can be remotes in .git/config that don't have any details,
     # seems these are left overs from deleted remotes.
     if not hasattr(remote, 'url'):
-        print('  ignoring remote \'{}\', no URL'.format(remote.name))
+        print(f'  ignoring remote "{remote.name}", no URL'.format(remote.name))
         return
 
     url = remote.url
@@ -338,7 +334,7 @@ def switch_github_remote_to_ssh(remote):
         return
 
     url = url.replace('https://github.com', 'ssh://git@github.com', 1)
-    print('  remote \'{}\': update url to {}'.format(remote.name, url))
+    print(f'  remote "{remote.name}": update url to {url}')
     remote.set_url(url)
 
 #-------------------------------------------------------------------------------
@@ -354,7 +350,7 @@ def update_from_remotes(
     for subfolder, ver in versions.items():
 
         if not subfolder in mapping:
-            print('{}'.format(subfolder))
+            print(f'{subfolder}')
             print('  ERROR: no repository defined')
             continue
 
@@ -362,16 +358,16 @@ def update_from_remotes(
         if ver is None:
             ver = main_brnach
 
-        print('{}@{}'.format(subfolder, ver))
+        print(f'{subfolder}@{ver}')
 
         repo_dir = os.path.join(base_dir, subfolder)
         if not os.path.exists(repo_dir):
-            print('  missing SDK folder: {}'.format(repo_dir))
+            print(f'  missing SDK folder: {repo_dir}')
             continue
 
         repo = git.Repo(repo_dir)
         if repo.bare:
-            print('  unsupported bare repo: {}'.format(repo_dir))
+            print(f'  unsupported bare repo: {repo_dir}')
             continue
 
         # switch all github remotes from https to ssh
@@ -380,7 +376,7 @@ def update_from_remotes(
 
         # pull from upsteam repo
         if not is_name_in_remotes(remote_upstream, repo):
-            print('  remote \'{}\': missing upstream source repo'.format(remote_upstream))
+            print(f'  no upstream repo "{remote_upstream}"')
             continue
 
         r = repo.remotes[remote_upstream]
@@ -391,19 +387,19 @@ def update_from_remotes(
             ver = post
 
         # update local repos from sel4 repos on github
-        print('  remote \'{}\': pull from {}'.format(remote_upstream, r.url))
+        print(f'  check upstream "{remote_upstream}" at {r.url}')
         m = r.pull(ver)
         commit_id = m[0].commit
-        print('  commit {}'.format(commit_id))
+        print(f'    at commit {commit_id}')
 
         # update forked remote repos if version is a commit ID or branch
         if (not sep) or version_is_branch:
             for name in remotes_to_update:
                 if not is_name_in_remotes(name, repo):
-                    print('  remote \'{}\': not set up'.format(name))
+                    print(f'  remote "{name}": not set up')
                     continue
                 r = repo.remotes[name]
-                print('  remote \'{}\': push to {}'.format(r.name, r.url))
+                print(f'  push to "{r.name}" at {r.url}')
                 r.push('{}:refs/heads/{}'.format(commit_id, ver), force=True)
 
 
@@ -583,13 +579,13 @@ def update_systems():
         assert not repo.bare
         ver = 'integration'
         remote = 'origin'
-        print('{: <32} {}@{}'.format(folder, remote, ver))
+        print(f'{folder} {remote}@{ver}')
         try:
             r = repo.remotes[remote]
             assert r
             r.pull(ver)
         except:
-            print('FAILURE: {}'.format(folder))
+            print(f'FAILURE: {folder}')
 
 
 
@@ -618,7 +614,7 @@ def main():
 
     # print("Python: " + platform.python_version())
     cwd = os.getcwd()
-    print("working dir: " + cwd)
+    print(f'working dir: {cwd}')
 
     if args.update_systems:
         update_systems()
