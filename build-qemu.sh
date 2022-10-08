@@ -21,6 +21,8 @@ function build_qemu()
         #microblazeel
     )
 
+    QEMU_VERSION=$(cat ${QEMU_SRC}/VERSION)
+
     QEMU_CFG=(
         --static # aim for a stand-alone binary with few library dependencies
         --target-list=$(IFS=,; echo "${QEMU_TARGETS[*]/%/-softmmu}")
@@ -38,6 +40,8 @@ function build_qemu()
         --disable-snappy
         --disable-vnc
         --disable-xen
+        --with-pkgversion="qemu-${QEMU_VERSION}-hc"
+        --prefix="/opt/hc"
     )
 
     if [ ! -e ${QEMU_BUILD} ]; then
