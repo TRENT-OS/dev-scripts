@@ -68,6 +68,7 @@ function build_qemu()
         ${QEMU_BUILD}/qemu-io
         ${QEMU_BUILD}/qemu-nbd
         ${QEMU_BUILD}/qemu-pr-helper
+        ${QEMU_BUILD}/qemu-bundle/usr/local/share/qemu/efi-virtio.rom
     )
     tar "${TAR_PARAMS[@]}"
 }
