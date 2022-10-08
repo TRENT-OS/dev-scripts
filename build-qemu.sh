@@ -81,12 +81,21 @@ function get_and_build_qemu()
     QEMU_SRC=qemu-${VER}
     QEMU_BUILD=build-qemu-${VER}
     QEMU_BIN_ARCHIVE=qemu-bin-${VER}.tar.bz2
+    QEMU_PATCH=qemu_patches.patch
 
     if [ ! -d ${QEMU_SRC} ]; then
         if [ ! -e ${QEMU_ARCHIVE} ]; then
             wget https://download.qemu.org/${QEMU_ARCHIVE}
         fi
         tar -xf ${QEMU_ARCHIVE}
+    fi
+
+    ls -la
+    if [ -f ${QEMU_PATCH} ]; then
+        (
+            cd ${QEMU_SRC}
+            patch -p1 < ../${QEMU_PATCH}
+        )
     fi
 
     build_qemu ${QEMU_SRC} ${QEMU_BUILD} ${QEMU_BIN_ARCHIVE}
