@@ -24,6 +24,7 @@ function build_qemu()
     QEMU_CFG=(
         --static # aim for a stand-alone binary with few library dependencies
         --target-list=$(IFS=,; echo "${QEMU_TARGETS[*]/%/-softmmu}")
+        --enable-capstone
         --audio-drv-list="" # don't require libpulse
         --disable-brlapi
         --disable-gio
