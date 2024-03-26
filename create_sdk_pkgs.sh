@@ -1,5 +1,11 @@
 #!/bin/bash -uex
 
+# Copyright (C) 2020-2024, HENSOLDT Cyber GmbH
+# 
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# For commercial licensing, contact: info.cyber@hensoldt.net
+
 RELEASE_VERSION="1.3"
 JENKINS_BUILD_NR=2
 

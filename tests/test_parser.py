@@ -1,5 +1,11 @@
 import pytest, re, time
 
+# Copyright (C) 2020-2024, HENSOLDT Cyber GmbH
+# 
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# For commercial licensing, contact: info.cyber@hensoldt.net
+
 def find_assert(output_file):
     """
     Check if current output already contains an assert failure of any type. Start

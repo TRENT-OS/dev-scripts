@@ -1,5 +1,11 @@
 #!/bin/bash -ue
 
+# Copyright (C) 2020-2024, HENSOLDT Cyber GmbH
+# 
+# SPDX-License-Identifier: GPL-2.0-or-later
+#
+# For commercial licensing, contact: info.cyber@hensoldt.net
+
 SCRIPT_DIR=$(cd `dirname $0` && pwd)
 
 # if we are not running in a terminal, start one one and start us in there
